@@ -1,0 +1,747 @@
+#!/bin/sh
+# archivers-init
+# A simple archivers add-on for XigmaNAS x64 11.x and later.
+# License: BSD2CLAUSE (BSD 2-clause Simplified License).
+# Debug script
+#set -x
+
+# Copyright (c) 2020 José Rivera (JoseMR)
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that following conditions are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS 'AS IS' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Set environment.
+PATH=${PATH}:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+
+# Determine full working directory.
+CWDIR=$(dirname $(realpath $0))
+
+# Global variables.
+PLATFORM=$(uname -m)
+PRODUCT=$(uname -i)
+PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.')
+PRDPLATFORM=$(cat /etc/platform)
+SCRIPTNAME=$(basename $0)
+CONFIG="/cf/conf/config.xml"
+APPNAME="archivers"
+EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
+ARCHIVERSLOGFILE=${EXTLOGFILE}
+FULLAPPNAME="${APPNAME}-addon"
+PKGCONF="/etc/pkg/FreeBSD.conf"
+USRLOCAL="/usr/local"
+APPPATH="${USRLOCAL}/bin"
+APPMASTER="p7zip"
+APPBIN="7z"
+PKG_BUNDLE="p7zip p7zip-codec-rar lzo2 lzop liblz4"
+WWWPATH="/usr/local/www"
+ARCHIVERSCONF="/conf/archivers_config"
+ARCHIVERSCONFLINK="/var/etc/archiversconf"
+INSTALLPATH="${CWDIR}/${FULLAPPNAME}"
+BRANCH="master"
+GITURL="https://github.com/JRGTH/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
+VERFILE="https://raw.githubusercontent.com/JRGTH/xigmanas-${APPNAME}-extension/${BRANCH}/version"
+
+error_notify()
+{
+	# Log/notify message on error and exit.
+	MSG="$*"
+	logger -t "${SCRIPTNAME}" "${MSG}"
+	echo -e "$*" >&2; exit 1
+}
+
+runtime_config()
+{
+	# Create required directories if missing.
+	if [ ! -d "${CWDIR}/conf" ]; then
+		mkdir -p ${CWDIR}/conf
+	fi
+	if [ ! -d "${CWDIR}/log" ]; then
+		mkdir -p ${CWDIR}/log
+	fi
+	if [ ! -d "${CWDIR}/locale-archivers" ]; then
+		mkdir -p ${CWDIR}/locale-archivers
+	fi
+}
+
+update_freebsdconf()
+{
+	# Update FreeBSD.conf to fetch latest packages.
+	if [ -f "${PKGCONF}" ]; then 
+		if grep -q "quarterly" ${PKGCONF}; then
+			sed -i '' -E "s/quarterly/latest/g" ${PKGCONF} || \
+			error_notify "Error: A problem has occurred while updating FreeBSD.conf file."
+		fi
+	fi
+}
+
+archivers_native_download()
+{
+	# Install latest archivers packages.
+	if ! pkg info | grep -q ${APPMASTER}; then
+		# Check if archivers already exist.
+		if [ ! -f "${APPPATH}/${APPBIN}" ]; then
+			update_freebsdconf
+			pkg install -y ${PKG_BUNDLE} || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
+		fi
+	fi
+}
+
+archivers_initial_download()
+{
+	# Check if archivers already exist.
+	if [ ! -f "${CWDIR}/${FULLAPPNAME}/${APPPATH}/${APPBIN}" ]; then
+		# Fetch archivers packages.
+		update_freebsdconf
+		pkg fetch -y -o ${CWDIR}/download ${PKG_BUNDLE} || \
+		error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
+		archivers_pkg_extract
+	fi
+}
+
+archivers_pkg_extract()
+{
+	for PKG in ${PKG_BUNDLE}; do
+		# Extract fetched package for Embedded platform.
+		if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
+			echo "Extracting ${PKG}..."
+			tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.txz -C ${CWDIR}/${FULLAPPNAME}/ || \
+			error_notify "Error: A problem has occurred while extractig ${PKG} files."
+			mkdir -p ${CWDIR}/${FULLAPPNAME}/${PKG}
+			mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}
+			rm ${CWDIR}/download/All/${PKG}-[0-9]*.txz
+			echo "Done!"
+		fi
+	done
+}
+
+ext_initial_download()
+{
+	# Always ensure the version file is present, otherwise update the extension files on startup.
+	if [ ! -f "${CWDIR}/version" ]; then
+		echo "Fetching and extracting extension files..."
+		mkdir -p ${CWDIR}/update
+		fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${GITURL} || \
+		error_notify "Error: A problem has occurred while fetching extension package."
+		tar -xf ${CWDIR}/update/${BRANCH}.zip --exclude='.git*' --strip-components 1 -C ${CWDIR}/update
+		chmod +x ${CWDIR}/update/${SCRIPTNAME}
+		cp -rf ${CWDIR}/update/* ${CWDIR}/
+		rm -r ${CWDIR}/update
+		rm -f ${CWDIR}/${BRANCH}.zip
+		echo "Done!"
+	fi
+}
+
+extension_upgrade()
+{
+	# Perform an online extension upgrade.
+	DATE=$(date +"%a %b %d %T %Y")
+	echo "Looking for new extension package!"
+	mkdir -p ${CWDIR}/update
+	fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${VERFILE} || \
+	error_notify "Error: A problem has occurred while fetching version file."
+
+	# Compare version files and fetch latest package if available.
+	if [ -f "${CWDIR}/update/version" ]; then
+		UPDATEVER=$(cat ${CWDIR}/update/version | tr -d .)
+		CURRENTVER=$(cat ${CWDIR}/version | tr -d .)
+		if [ "${UPDATEVER}" -gt "${CURRENTVER}" ]; then
+			echo "New ${FULLAPPNAME} package found, performing upgrade..."
+			fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${GITURL} || \
+			error_notify "Error: A problem has occurred while fetching extension package."
+			tar -xf ${CWDIR}/update/${BRANCH}.zip --exclude='.git*' --strip-components 1 -C ${CWDIR}/update
+			chmod +x ${CWDIR}/update/${SCRIPTNAME}
+			rm -f ${CWDIR}/update/${BRANCH}.zip
+			cp -rf ${CWDIR}/update/* ${CWDIR}/
+			rm -r ${CWDIR}/update
+			rm -f ${CWDIR}/${BRANCH}.zip
+
+			# Logging the update event.
+			UPDATEVERSION=$(cat ${CWDIR}/version)
+			echo "${DATE}: extension upgraded to ${UPDATEVERSION}" >> ${EXTLOGFILE}
+			echo "Extension package upgrade completed!"
+		else
+			echo "Extension package is on the latest version!"
+			rm -r ${CWDIR}/update
+		fi
+	fi
+}
+
+product_check()
+{
+	# Check for the working product.
+	if [ "${PRODUCT}" = "NAS4FREE-x64" ] || [ "${PRODUCT}" = "XIGMANAS-x64" ]; then
+		postinit_cmd
+		gui_start
+	fi
+}
+
+create_addon_env()
+{
+	# Create required directories.
+	if [ ! -d "${CWDIR}/conf" ]; then
+		mkdir -p ${CWDIR}/conf
+	fi
+	if [ ! -d "${CWDIR}/locale-archivers" ]; then
+		mkdir -p ${CWDIR}/locale-archivers
+	fi
+	if [ ! -d "${CWDIR}/download/All" ]; then
+		mkdir -p ${CWDIR}/download/All
+	fi
+	if [ ! -d "${CWDIR}/log" ]; then
+		mkdir -p ${CWDIR}/log
+	fi
+	if [ ! -d "${CWDIR}/${FULLAPPNAME}" ]; then
+		mkdir -p ${CWDIR}/${FULLAPPNAME}
+	fi
+
+	# Link archivers-init to /usr/local/sbin.
+	if [ ! -f "${USRLOCAL}/sbin/${SCRIPTNAME}" ]; then
+		ln -fs ${CWDIR}/${SCRIPTNAME} ${USRLOCAL}/sbin/${SCRIPTNAME}
+	fi
+}
+
+platform_check()
+{
+	# Check for working platform.
+	if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
+		create_addon_env
+		ext_initial_download
+		archivers_initial_download
+		sys_symlinkdir
+	elif [ "${PRDPLATFORM}" = "x64-full" ]; then
+		create_addon_env
+		ext_initial_download
+		archivers_native_download
+		#bin_symlinks
+	fi
+}
+
+sys_symlinkdir()
+{
+	# Check and create/relink required symlinks/dirs for archivers.
+	# This environment will be checked each time the script is started for consistency.
+
+	# Required directories for archivers.
+	if [ ! -d "${USRLOCAL}/share/doc" ]; then
+		mkdir -p ${USRLOCAL}/share/doc
+	fi
+	if [ ! -d "${USRLOCAL}/share/examples" ]; then
+		mkdir -p ${USRLOCAL}/share/examples
+	fi
+	if [ ! -d "${USRLOCAL}/man/man1" ]; then
+		mkdir -p ${USRLOCAL}/man/man1
+	fi
+	if [ ! -d "${USRLOCAL}/share/licenses" ]; then
+		mkdir -p ${USRLOCAL}/share/licenses
+	fi
+	if [ ! -d "${USRLOCAL}/share/man/man1" ]; then
+		mkdir -p ${USRLOCAL}/share/man/man1
+	fi
+	if [ ! -d "${USRLOCAL}/libdata/pkgconfig" ]; then
+		mkdir -p ${USRLOCAL}/libdata/pkgconfig
+	fi
+
+	# Main archivers symlinks.
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/bin
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/bin/${file} ${USRLOCAL}/bin/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/include" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/include
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/include/${file} ${USRLOCAL}/include/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/lib" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/lib
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/lib/${file} ${USRLOCAL}/lib/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig/${file} ${USRLOCAL}/libdata/pkgconfig/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/libexec" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/libexec
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/libexec/${file} ${USRLOCAL}/libexec/${file}
+		done
+	fi
+
+	# Required symlinks for archivers.
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/doc" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/doc
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/doc/${file} ${USRLOCAL}/share/doc/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/man/man1" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/man/man1
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/man/man1/${file} ${USRLOCAL}/man/man1/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/examples" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/examples
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/examples/${file} ${USRLOCAL}/share/examples/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/licenses" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/licenses
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/licenses/${file} ${USRLOCAL}/share/licenses/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/man/man1" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/man/man1
+		for file in *
+			do
+				ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/man/man1/${file} ${USRLOCAL}/share/man/man1/${file}
+		done
+	fi
+}
+
+rem_symlinkdir()
+{
+	# Remove main archivers symlinks.
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/bin
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/bin/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/include" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/include
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/include/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/lib" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/lib
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/lib/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/libdata/pkgconfig/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/libexec" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/libexec
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/libexec/${file}
+		done
+	fi
+
+	# Remove additional required symlinks for archivers.
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/doc" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/doc
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/share/doc/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/man/man1" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/man/man1
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/man/man1/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/examples" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/examples
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/share/examples/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/licenses" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/licenses
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/share/licenses/${file}
+		done
+	fi
+	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/man/man1" ]; then
+		cd ${INSTALLPATH}/${USRLOCAL}/share/man/man1
+		for file in *
+			do
+				rm -rf ${USRLOCAL}/share/man/man1/${file}
+		done
+	fi
+}
+
+postinit_cmd()
+{
+	# Check and generate temporary php script for postinit command.
+	if ! grep -qw ${CWDIR}/${SCRIPTNAME} ${CONFIG}; then
+		touch ${CWDIR}/postinit || error_notify "Error: A problem has occurred while creating the postinit file."
+		chmod +x ${CWDIR}/postinit
+		if [ ! "${PRDVERSION}" -ge "110" ]; then
+			# Generate php script for NAS4Free 10.3 versions.
+			cat << EOF > ${CWDIR}/postinit
+<?php
+require_once("config.inc");
+require_once("functions.inc");
+\$cmd = dirname(__FILE__)."/${SCRIPTNAME}";
+	\$i =0;
+	if ( is_array(\$config['rc']['postinit'] ) && is_array( \$config['rc']['postinit']['cmd'] ) ) {
+		for (\$i; \$i < count(\$config['rc']['postinit']['cmd']);) {
+			if (preg_match('/${SCRIPTNAME}/', \$config['rc']['postinit']['cmd'][\$i])) break; ++\$i; }
+	}
+	\$config['rc']['postinit']['cmd'][\$i] = \$config['cmd']."\$cmd";
+	write_config();
+?>
+EOF
+		else
+			# Generate php script for NAS4Free/XigmaNAS 11.x versions.
+			cat << EOF > ${CWDIR}/postinit
+<?php
+require_once("config.inc");
+require_once("functions.inc");
+\$cmd = dirname(__FILE__)."/${SCRIPTNAME}";
+\$name = "Archivers Extension";
+\$comment = "Start ${APPNAME}";
+\$rc = &array_make_branch(\$config,'rc','param'); 
+if(false === array_search_ex(\$name,\$rc,'name')):
+	\$rc_param = [];
+	\$rc_param['uuid'] = uuid();
+	\$rc_param['name'] = \$name;
+	\$rc_param['value'] = \$cmd;
+	\$rc_param['comment'] = \$comment;
+	\$rc_param['typeid'] = '2';
+	\$rc_param['enable'] = true;
+	\$rc[] = \$rc_param;
+	write_config();
+endif;
+unset(\$rc);
+?>
+EOF
+		fi
+
+		# Execute temporary php script.
+		if [ "${OBI_INSTALL}" != "ON" ]; then
+			echo "Creating postinit command..."
+			php-cgi -f ${CWDIR}/postinit && rm ${CWDIR}/postinit || \
+			error_notify "Error: A problem has occurred while executing postinit file."
+			echo "Done!"
+		fi
+		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+	fi
+}
+
+gui_start()
+{
+	# Initialize the extension gui.
+	if [ -d "${CWDIR}/gui" ]; then
+		# Always ensure the config directory/file exist.
+		if [ ! -f "${CWDIR}${ARCHIVERSCONF}" ]; then
+			# Try to restore default configuration.
+			runtime_config
+			# Set default config.
+			sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+		fi
+		GUI_STATUS=$(sysrc -f ${CWDIR}${ARCHIVERSCONF} -qn GUI_ENABLE)
+		if [ "${GUI_STATUS}" = "YES" ]; then
+			# Store the installation path and link conf.
+			if ! sysrc -f ${CWDIR}${ARCHIVERSCONF} -n INSTALL_DIR | grep -q "${CWDIR}"; then
+				sysrc -f ${CWDIR}${ARCHIVERSCONF} INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+			fi
+			mkdir -p ${ARCHIVERSCONFLINK}
+			ln -fhs ${CWDIR}/conf ${ARCHIVERSCONFLINK}/conf
+			# Link the gui files.
+			if [ ! -d "${WWWPATH}/ext" ]; then
+				mkdir -p ${WWWPATH}/ext
+			fi
+			ln -fhs ${CWDIR}/gui/ext/archivers-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
+			ln -fhs ${CWDIR}/gui/archivers-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
+			
+		fi
+	fi
+}
+
+gui_enable()
+{
+	# Relink conf and copy the gui files.
+	if [ -d "${CWDIR}/gui" ]; then
+		mkdir -p ${ARCHIVERSCONFLINK}
+		ln -fhs ${CWDIR}/conf ${ARCHIVERSCONFLINK}/conf
+		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES >/dev/null 2>&1
+		if [ ! -d "${WWWPATH}/ext" ]; then
+			mkdir -p ${WWWPATH}/ext
+		fi
+		ln -fhs ${CWDIR}/gui/ext/archivers-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
+		ln -fhs ${CWDIR}/gui/archivers-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
+		exit 0
+	else
+		error_notify "Error: Extension gui files not found."
+	fi
+}
+
+gui_disable()
+{
+	# Disable gui if -t option specified.
+	if [ -d "${CWDIR}/gui" ]; then
+		rm -f ${WWWPATH}/archivers-gui.php
+		rm -rf ${WWWPATH}/ext/archivers-gui
+		rm -f ${LOCALSHAREPATH}/locale-archivers
+		rm -rf ${ARCHIVERSCONFLINK}
+		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=NO >/dev/null 2>&1 || error_notify "Error: A problem while removing extension gui files."
+		exit 0
+	else
+		error_notify "Error: Extension gui files not found."
+	fi
+
+	# Remove empty ext folder to prevent empty "Extensions" tab.
+	if [ -d "${WWWPATH}/ext" ]; then
+		if [ ! "$(ls -A ${WWWPATH}/ext)" ]; then
+			rm -r ${WWWPATH}/ext
+		fi
+	fi
+}
+
+pkg_upgrade()
+{
+	# Update FreeBSD.conf file.
+	update_freebsdconf
+
+	# Check for archivers updates.
+
+	if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
+		# To fix pkg: Repository FreeBSD missing. 'pkg update' required on Embedded platforms.
+		pkg update
+
+		for PKG in ${PKG_BUNDLE}; do
+			echo "Looking for new ${PKG} package..."
+
+			# Set product version variables.
+			# We have to use the manifest file for version comparison for Embedded platform.
+			NOWPKG=$(grep '"version":"' ${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST | cut -d',' -f3 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+			NEWPKG=$(pkg search ${PKG} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+
+			# Extract new fetched packages for Embedded platform on new version.
+			if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
+				echo "New ${PKG} package found, performing upgrade..."
+				NEWPKG_VER=$(pkg search ${PKG} | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
+				pkg fetch -y -o ${CWDIR}/download ${PKG}-${NEWPKG_VER} || \
+				error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
+				echo "Extracting ${PKG}-${NEWPKG_VER}..."
+				tar -Jxf ${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.txz -C ${CWDIR}/${FULLAPPNAME}/ || \
+				error_notify "Error: A problem has occurred while extractig files."
+				mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}/
+			else
+				echo "No new ${PKG} package available!"
+			fi
+		done
+
+	elif [ "${PRDPLATFORM}" = "x64-full" ]; then
+		for PKG in ${PKG_BUNDLE}; do
+			echo "Looking for new ${PKG} package..."
+
+			# Set current version.
+			PKG=$(pkg info | grep ${APPNAME} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+
+			# Issue archivers upgrade command in Full platforms. 
+			pkg upgrade -y ${PKG} || \
+			error_notify "Error: A problem has occurred while upgrading ${APPNAME}."
+
+			# Set new version.
+			NEWPKG=$(pkg info | grep ${PKG} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+			if [ "${NEWPKG}" -gt "${PKG}" ]; then
+				echo "New ${PKG} package found and upgraded!"
+			else
+				echo "No new ${PKG} package available!"
+			fi
+		done
+	fi
+
+	# Check for extension updates.
+	extension_upgrade
+}
+
+reset_install()
+{
+	# Reset the extension environment.
+	echo "Removing extension files..."
+	if [ -d "${CWDIR}/conf" ]; then
+		rm -rf ${CWDIR}/conf
+	fi
+	if [ -d "${CWDIR}/log" ]; then
+		rm -rf ${CWDIR}/log
+	fi
+	if [ -d "${CWDIR}/locale-archivers" ]; then
+		rm -rf ${CWDIR}/locale-archivers
+	fi
+	if [ -d "${CWDIR}/${FULLAPPNAME}" ]; then
+		rm -rf ${CWDIR}/${FULLAPPNAME}
+	fi
+	if [ -d "${CWDIR}/download" ]; then
+		rm -rf ${CWDIR}/download
+	fi
+	if [ -f "${CWDIR}/version" ]; then
+		rm -f ${CWDIR}/version
+	fi
+	runtime_config
+}
+
+remove_addon()
+{
+	# Confirm for addon removal.
+	while :
+		do
+			read -p "Do you wish to proceed with the ${FULLAPPNAME} removal? [y/N]:" yn
+			case ${yn} in
+			[Yy]) break;;
+			[Nn]) exit 0;;
+			esac
+		done
+	echo "Proceeding..."
+
+	if [ -d "${WWWPATH}/archivers-gui.php" ]; then
+		rm -f ${WWWPATH}/archivers-gui.php
+		rm -rf ${WWWPATH}/ext/archivers-gui
+		rm -f ${LOCALSHAREPATH}/locale-archivers
+		rm -rf ${ARCHIVERSCONFLINK}
+	fi
+
+	# Check for working platform.
+	if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
+		if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
+			rem_symlinkdir
+		fi
+	elif [ "${PRDPLATFORM}" = "x64-full" ]; then
+		if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
+			pkg delete -y ${PKG_BUNDLE}
+		fi
+	fi
+
+	# Remove addon related files and folders only-
+	# to protect any user-created custom files.
+	FILES="conf download gui locale-archivers log archivers-addon README.md postinit CHANGELOG version archivers-init update"
+	for file in ${FILES}; do
+		if [ -f "${CWDIR}/${file}" ] || [ -d "${CWDIR}/${file}" ]; then
+			rm -rf ${CWDIR}/${file}
+		fi
+	done
+
+	if [ ! -f "${USRLOCAL}/sbin/${SCRIPTNAME}" ]; then
+		rm ${USRLOCAL}/sbin/${SCRIPTNAME}
+	fi
+
+	echo "Done!"
+	echo "Please manually remove the archivers Extension Command Script from the WebGUI."
+	exit 0
+}
+
+get_versions()
+{
+	# Get archivers-addon extension version.
+	if [ -f "${CWDIR}/version" ]; then
+		APPVERSION=$(cat ${CWDIR}/version)
+	else
+		APPVERSION="version file not found!"
+	fi
+
+	# Display product versions.
+	echo -e "\n7-Zip version:" && ${USRLOCAL}/bin/7z | awk 'NR==2' | cut -d':' -f1
+	echo -e "\nLZ4 version:" && ${USRLOCAL}/bin/lz4 -V | cut -d',' -f1 | sed 's/command line interface\ // ; s/\*\*\*\ //'
+	echo -e "\nLZOP version:" && ${USRLOCAL}/bin/lzop --version | awk 'NR==1, NR==2'
+	echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
+	exit 0
+}
+
+exec_status()
+{
+	# Log on startup success, else logging with faults.
+	if [ $? -eq 0 ]; then
+		MSG="script has been started successfully!"
+		logger -t ${SCRIPTNAME} ${MSG}
+	else
+		MSG="script started with faults"
+		logger -t ${SCRIPTNAME} ${MSG}
+	fi
+}
+
+archivers_init()
+{
+	# Check for system compatibility.
+	if [ ! "${PLATFORM}" = "amd64" ]; then
+		echo "Unsupported platform!"; exit 1
+	fi 
+	# Check for product compatibility.
+	if [ ! "${PRDVERSION}" -ge "110" ]; then
+		echo "Unsupported version!"; exit 1
+	fi
+
+	echo "Initializing ${APPNAME}..."
+
+	# Function calls.
+	platform_check
+	product_check
+	exec_status
+}
+
+# Run-time configuration.
+runtime_config
+
+while getopts ":ouxrvgth" option; do
+	case ${option} in
+		[h]) echo "Usage: ${SCRIPTNAME} -[option]";
+		echo "Options:"
+		echo "        -u  Upgrade Archivers/Add-On packages."
+		echo "        -v  Display product version."
+		echo "        -g  Enables the addon GUI."
+		echo "        -t  Disable the addon GUI."
+		echo "        -x  Reset ${FULLAPPNAME}."
+		echo "        -r  Remove ${FULLAPPNAME}."
+		echo "        -h  Display this help message."; exit 0;;
+		[o]) OBI_INSTALL="ON";; # To prevent nested PHP-CGI call for installation with OBI.
+		[u]) pkg_upgrade;;
+		[x]) reset_install;;
+		[r]) remove_addon;;
+		[v]) get_versions;;
+		[g]) gui_enable; exit 0 ;; # For enable the addon gui.
+		[t]) gui_disable; exit 0 ;; # For disable the addon gui.
+		[?]) echo "Invalid option, -h for usage."; exit 1;;
+	esac
+done
+archivers_init
