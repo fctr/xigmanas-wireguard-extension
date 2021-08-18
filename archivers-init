@@ -121,11 +121,11 @@ archivers_pkg_extract()
 		# Extract fetched package for Embedded platform.
 		if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
 			echo "Extracting ${PKG}..."
-			tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.txz -C ${CWDIR}/${FULLAPPNAME}/ || \
+			tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg] -C ${CWDIR}/${FULLAPPNAME}/ || \
 			error_notify "Error: A problem has occurred while extractig ${PKG} files."
 			mkdir -p ${CWDIR}/${FULLAPPNAME}/${PKG}
 			mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}
-			rm ${CWDIR}/download/All/${PKG}-[0-9]*.txz
+			rm ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]
 			echo "Done!"
 		fi
 	done
@@ -565,7 +565,7 @@ pkg_upgrade()
 				pkg fetch -y -o ${CWDIR}/download ${PKG}-${NEWPKG_VER} || \
 				error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
 				echo "Extracting ${PKG}-${NEWPKG_VER}..."
-				tar -Jxf ${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.txz -C ${CWDIR}/${FULLAPPNAME}/ || \
+				tar -Jxf ${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.[tp][xk][zg] -C ${CWDIR}/${FULLAPPNAME}/ || \
 				error_notify "Error: A problem has occurred while extractig files."
 				mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}/
 			else
