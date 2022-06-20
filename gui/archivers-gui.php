@@ -52,7 +52,8 @@ $cwdir = exec("/usr/bin/grep 'INSTALL_DIR=' {$confdir}/conf/archivers_config | c
 $rootfolder = $cwdir;
 $configfile = "{$rootfolder}/conf/archivers_config";
 $versionfile = "{$rootfolder}/version";
-$date = strftime('%c');
+//$date = strftime('%c');                // Previous PHP versions, deprecated as of PHP 8.1.
+$date = date('D M d h:i:s Y', time());   // Equivalent date replacement for the previous strftime function.
 $logfile = "{$rootfolder}/log/archivers_ext.log";
 $logevent = "{$rootfolder}/log/archivers_last_event.log";
 $prdname = "archivers";
