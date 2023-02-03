@@ -1,2 +1,1 @@
-
-ext/archivers-gui 
+<a href="wireguard-gui.php">WireGuard</a>
