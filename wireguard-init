@@ -1,5 +1,5 @@
 #!/bin/sh
-# archivers-init
+# wireguard-init
 # A simple wireguard add-on for XigmaNAS x64 11.x and later.
 # License: BSD2CLAUSE (BSD 2-clause Simplified License).
 # Debug script
@@ -42,7 +42,7 @@ SCRIPTNAME=$(basename $0)
 CONFIG="/cf/conf/config.xml"
 APPNAME="wireguard"
 EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
-ARCHIVERSLOGFILE=${EXTLOGFILE}
+WIREGUARDLOGFILE=${EXTLOGFILE}
 FULLAPPNAME="${APPNAME}-addon"
 PKGCONF="/etc/pkg/FreeBSD.conf"
 USRLOCAL="/usr/local"
@@ -51,12 +51,12 @@ APPMASTER="p7zip"
 APPBIN="7z"
 PKG_BUNDLE="p7zip p7zip-codec-rar lzo2 lzop liblz4"
 WWWPATH="/usr/local/www"
-ARCHIVERSCONF="/conf/archivers_config"
-ARCHIVERSCONFLINK="/var/etc/archiversconf"
+WIREGUARDCONF="/conf/wireguard_config"
+WIREGUARDCONFLINK="/var/etc/wireguardconf"
 INSTALLPATH="${CWDIR}/${FULLAPPNAME}"
 BRANCH="master"
-GITURL="https://github.com/JRGTH/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
-VERFILE="https://raw.githubusercontent.com/JRGTH/xigmanas-${APPNAME}-extension/${BRANCH}/version"
+GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/wireguard/${BRANCH}.zip"
+VERFILE="https://raw.githubusercontent.com/fctr/xigmanas-${APPNAME}-extension/${BRANCH}/version"
 
 error_notify()
 {
@@ -75,8 +75,8 @@ runtime_config()
 	if [ ! -d "${CWDIR}/log" ]; then
 		mkdir -p ${CWDIR}/log
 	fi
-	if [ ! -d "${CWDIR}/locale-archivers" ]; then
-		mkdir -p ${CWDIR}/locale-archivers
+	if [ ! -d "${CWDIR}/locale-wireguard" ]; then
+		mkdir -p ${CWDIR}/locale-wireguard
 	fi
 }
 
@@ -223,12 +223,12 @@ platform_check()
 	if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
 		create_addon_env
 		ext_initial_download
-		archivers_initial_download
+		wireguard_initial_download
 		sys_symlinkdir
 	elif [ "${PRDPLATFORM}" = "x64-full" ]; then
 		create_addon_env
 		ext_initial_download
-		archivers_native_download
+		wireguard_native_download
 		#bin_symlinks
 	fi
 }
@@ -505,7 +505,7 @@ gui_enable()
 	if [ -d "${CWDIR}/gui" ]; then
 		mkdir -p ${WIREGUARDCONFLINK}
 		ln -fhs ${CWDIR}/conf ${WIREGUARDCONFLINK}/conf
-		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES >/dev/null 2>&1
+		sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=YES >/dev/null 2>&1
 		if [ ! -d "${WWWPATH}/ext" ]; then
 			mkdir -p ${WWWPATH}/ext
 		fi
@@ -544,7 +544,7 @@ pkg_upgrade()
 	# Update FreeBSD.conf file.
 	update_freebsdconf
 
-	# Check for archivers updates.
+	# Check for wireguard updates.
 
 	if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
 		# To fix pkg: Repository FreeBSD missing. 'pkg update' required on Embedded platforms.
@@ -580,7 +580,7 @@ pkg_upgrade()
 			# Set current version.
 			PKG=$(pkg info | grep ${APPNAME} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
-			# Issue archivers upgrade command in Full platforms. 
+			# Issue wireguard upgrade command in Full platforms. 
 			pkg upgrade -y ${PKG} || \
 			error_notify "Error: A problem has occurred while upgrading ${APPNAME}."
 
@@ -640,7 +640,7 @@ remove_addon()
 		rm -f ${WWWPATH}/wireguard-gui.php
 		rm -rf ${WWWPATH}/ext/wireguard-gui
 		rm -f ${LOCALSHAREPATH}/locale-wireguard
-		rm -rf ${ARCHIVERSCONFLINK}
+		rm -rf ${WIREGUARDCONFLINK}
 	fi
 
 	# Check for working platform.
@@ -656,7 +656,7 @@ remove_addon()
 
 	# Remove addon related files and folders only-
 	# to protect any user-created custom files.
-	FILES="conf download gui locale-archivers log archivers-addon README.md postinit CHANGELOG version archivers-init update"
+	FILES="conf download gui locale-wireguard log wireguard-addon README.md postinit CHANGELOG version wireguard-init update"
 	for file in ${FILES}; do
 		if [ -f "${CWDIR}/${file}" ] || [ -d "${CWDIR}/${file}" ]; then
 			rm -rf ${CWDIR}/${file}
@@ -668,13 +668,13 @@ remove_addon()
 	fi
 
 	echo "Done!"
-	echo "Please manually remove the archivers Extension Command Script from the WebGUI."
+	echo "Please manually remove the wireguard Extension Command Script from the WebGUI."
 	exit 0
 }
 
 get_versions()
 {
-	# Get archivers-addon extension version.
+	# Get wireguard-addon extension version.
 	if [ -f "${CWDIR}/version" ]; then
 		APPVERSION=$(cat ${CWDIR}/version)
 	else
