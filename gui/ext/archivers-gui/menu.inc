@@ -1,1 +1,1 @@
-<a href="archivers-gui.php">Archivers</a>
+<a href="wireguard-gui.php">WireGuard</a>
