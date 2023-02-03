@@ -1,8 +1,8 @@
 <?php
 /*
-	archivers-gui.php
+	wireguard-gui.php
 
-	WebGUI wrapper for the NAS4Free/XigmaNAS "Archivers" add-on created by JoseMR, (Copyright (c) 2020).
+	WebGUI wrapper for the NAS4Free/XigmaNAS "WireGuard" add-on created by FCTR, (Copyright (c) 2023).
 
 	Copyright (c) 2016 Andreas Schmidhuber
 	All rights reserved.
@@ -34,44 +34,44 @@
 require("auth.inc");
 require("guiconfig.inc");
 
-$application = "Archivers";
-$pgtitle = array(gtext("Extensions"), "Archivers");
+$application = "WireGuard";
+$pgtitle = array(gtext("Extensions"), "WireGuard");
 
 // For NAS4Free 10.x versions.
 $return_val = mwexec("/bin/cat /etc/prd.version | cut -d'.' -f1 | /usr/bin/grep '10'", true);
 if ($return_val == 0) {
 	if (is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
-		for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) { if (preg_match('/archivers-init/', $config['rc']['postinit']['cmd'][$i])) break; ++$i; }
+		for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) { if (preg_match('/wireguard-init/', $config['rc']['postinit']['cmd'][$i])) break; ++$i; }
 	}
 }
 
 // Initialize some variables.
 //$rootfolder = dirname($config['rc']['postinit']['cmd'][$i]);
-$confdir = "/var/etc/archiversconf";
-$cwdir = exec("/usr/bin/grep 'INSTALL_DIR=' {$confdir}/conf/archivers_config | cut -d'\"' -f2");
+$confdir = "/var/etc/wireguardconf";
+$cwdir = exec("/usr/bin/grep 'INSTALL_DIR=' {$confdir}/conf/wireguard_config | cut -d'\"' -f2");
 $rootfolder = $cwdir;
-$configfile = "{$rootfolder}/conf/archivers_config";
+$configfile = "{$rootfolder}/conf/wireguard_config";
 $versionfile = "{$rootfolder}/version";
 //$date = strftime('%c');                // Previous PHP versions, deprecated as of PHP 8.1.
 $date = date('D M d h:i:s Y', time());   // Equivalent date replacement for the previous strftime function.
-$logfile = "{$rootfolder}/log/archivers_ext.log";
-$logevent = "{$rootfolder}/log/archivers_last_event.log";
-$prdname = "archivers";
+$logfile = "{$rootfolder}/log/wireguard_ext.log";
+$logevent = "{$rootfolder}/log/wireguard_last_event.log";
+$prdname = "wireguard";
 
 
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
 else {
 // Initialize locales.
 	$textdomain = "/usr/local/share/locale";
-	$textdomain_archivers = "/usr/local/share/locale-archivers";
-	if (!is_link($textdomain_archivers)) { mwexec("ln -s {$rootfolder}/locale-archivers {$textdomain_archivers}", true); }
-	bindtextdomain("xigmanas", $textdomain_archivers);
+	$textdomain_wireguard = "/usr/local/share/locale-wireguard";
+	if (!is_link($textdomain_wireguard)) { mwexec("ln -s {$rootfolder}/locale-wireguard {$textdomain_wireguard}", true); }
+	bindtextdomain("xigmanas", $textdomain_wireguard);
 }
 if (is_file("{$rootfolder}/postinit")) unlink("{$rootfolder}/postinit");
 
 if ($_POST) {
 	if(isset($_POST['upgrade']) && $_POST['upgrade']):
-		$cmd = sprintf('%1$s/archivers-init -u > %2$s',$rootfolder,$logevent);
+		$cmd = sprintf('%1$s/wireguard-init -u > %2$s',$rootfolder,$logevent);
 		$return_val = 0;
 		$output = [];
 		exec($cmd,$output,$return_val);
