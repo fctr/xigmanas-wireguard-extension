@@ -250,7 +250,7 @@ $(document).ready(function(){
 				<?php html_separator();?>
 			</table>
 			<div id="submit1">
-				<input name="uninstall" type="submit" class="formbtn" title="<?=gtext("Uninstall Extension and archivers packages completely");?>" value="<?=gtext("Uninstall");?>" onclick="return confirm('<?=gtext("WireGuard Extension and packages will be completely removed, ready to proceed?");?>')" />
+				<input name="uninstall" type="submit" class="formbtn" title="<?=gtext("Uninstall Extension and WireGuard packages completely");?>" value="<?=gtext("Uninstall");?>" onclick="return confirm('<?=gtext("WireGuard Extension and packages will be completely removed, ready to proceed?");?>')" />
 			</div>
 		</td></tr>
 	</table>
