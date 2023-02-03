@@ -1,11 +1,11 @@
 #!/bin/sh
 # archivers-init
-# A simple archivers add-on for XigmaNAS x64 11.x and later.
+# A simple wireguard add-on for XigmaNAS x64 11.x and later.
 # License: BSD2CLAUSE (BSD 2-clause Simplified License).
 # Debug script
 #set -x
 
-# Copyright (c) 2020 José Rivera (JoseMR)
+# Copyright (c) 2023 FCTR
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.')
 PRDPLATFORM=$(cat /etc/platform)
 SCRIPTNAME=$(basename $0)
 CONFIG="/cf/conf/config.xml"
-APPNAME="archivers"
+APPNAME="wireguard"
 EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
 ARCHIVERSLOGFILE=${EXTLOGFILE}
 FULLAPPNAME="${APPNAME}-addon"
@@ -91,11 +91,11 @@ update_freebsdconf()
 	fi
 }
 
-archivers_native_download()
+wireguard_native_download()
 {
-	# Install latest archivers packages.
+	# Install latest wireguard packages.
 	if ! pkg info | grep -q ${APPMASTER}; then
-		# Check if archivers already exist.
+		# Check if wireguard already exist.
 		if [ ! -f "${APPPATH}/${APPBIN}" ]; then
 			update_freebsdconf
 			pkg install -y ${PKG_BUNDLE} || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
@@ -103,19 +103,19 @@ archivers_native_download()
 	fi
 }
 
-archivers_initial_download()
+wireguard_initial_download()
 {
-	# Check if archivers already exist.
+	# Check if wireguard already exist.
 	if [ ! -f "${CWDIR}/${FULLAPPNAME}/${APPPATH}/${APPBIN}" ]; then
-		# Fetch archivers packages.
+		# Fetch wireguard packages.
 		update_freebsdconf
 		pkg fetch -y -o ${CWDIR}/download ${PKG_BUNDLE} || \
 		error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
-		archivers_pkg_extract
+		wireguard_pkg_extract
 	fi
 }
 
-archivers_pkg_extract()
+wireguard_pkg_extract()
 {
 	for PKG in ${PKG_BUNDLE}; do
 		# Extract fetched package for Embedded platform.
@@ -198,8 +198,8 @@ create_addon_env()
 	if [ ! -d "${CWDIR}/conf" ]; then
 		mkdir -p ${CWDIR}/conf
 	fi
-	if [ ! -d "${CWDIR}/locale-archivers" ]; then
-		mkdir -p ${CWDIR}/locale-archivers
+	if [ ! -d "${CWDIR}/locale-wireguard" ]; then
+		mkdir -p ${CWDIR}/locale-wireguard
 	fi
 	if [ ! -d "${CWDIR}/download/All" ]; then
 		mkdir -p ${CWDIR}/download/All
@@ -211,7 +211,7 @@ create_addon_env()
 		mkdir -p ${CWDIR}/${FULLAPPNAME}
 	fi
 
-	# Link archivers-init to /usr/local/sbin.
+	# Link wireguard-init to /usr/local/sbin.
 	if [ ! -f "${USRLOCAL}/sbin/${SCRIPTNAME}" ]; then
 		ln -fs ${CWDIR}/${SCRIPTNAME} ${USRLOCAL}/sbin/${SCRIPTNAME}
 	fi
@@ -235,10 +235,10 @@ platform_check()
 
 sys_symlinkdir()
 {
-	# Check and create/relink required symlinks/dirs for archivers.
+	# Check and create/relink required symlinks/dirs for wireguard.
 	# This environment will be checked each time the script is started for consistency.
 
-	# Required directories for archivers.
+	# Required directories for wireguard.
 	if [ ! -d "${USRLOCAL}/share/doc" ]; then
 		mkdir -p ${USRLOCAL}/share/doc
 	fi
@@ -258,7 +258,7 @@ sys_symlinkdir()
 		mkdir -p ${USRLOCAL}/libdata/pkgconfig
 	fi
 
-	# Main archivers symlinks.
+	# Main wireguard symlinks.
 	if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
 		cd ${INSTALLPATH}/${USRLOCAL}/bin
 		for file in *
@@ -295,7 +295,7 @@ sys_symlinkdir()
 		done
 	fi
 
-	# Required symlinks for archivers.
+	# Required symlinks for wireguard.
 	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/doc" ]; then
 		cd ${INSTALLPATH}/${USRLOCAL}/share/doc
 		for file in *
@@ -335,7 +335,7 @@ sys_symlinkdir()
 
 rem_symlinkdir()
 {
-	# Remove main archivers symlinks.
+	# Remove main wireguard symlinks.
 	if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
 		cd ${INSTALLPATH}/${USRLOCAL}/bin
 		for file in *
@@ -372,7 +372,7 @@ rem_symlinkdir()
 		done
 	fi
 
-	# Remove additional required symlinks for archivers.
+	# Remove additional required symlinks for wireguard.
 	if [ -d "${INSTALLPATH}/${USRLOCAL}/share/doc" ]; then
 		cd ${INSTALLPATH}/${USRLOCAL}/share/doc
 		for file in *
@@ -439,7 +439,7 @@ EOF
 require_once("config.inc");
 require_once("functions.inc");
 \$cmd = dirname(__FILE__)."/${SCRIPTNAME}";
-\$name = "Archivers Extension";
+\$name = "WireGuard Extension";
 \$comment = "Start ${APPNAME}";
 \$rc = &array_make_branch(\$config,'rc','param'); 
 if(false === array_search_ex(\$name,\$rc,'name')):
@@ -465,7 +465,7 @@ EOF
 			error_notify "Error: A problem has occurred while executing postinit file."
 			echo "Done!"
 		fi
-		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+		sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
 	fi
 }
 
@@ -474,26 +474,26 @@ gui_start()
 	# Initialize the extension gui.
 	if [ -d "${CWDIR}/gui" ]; then
 		# Always ensure the config directory/file exist.
-		if [ ! -f "${CWDIR}${ARCHIVERSCONF}" ]; then
+		if [ ! -f "${CWDIR}${WIREGUARDCONF}" ]; then
 			# Try to restore default configuration.
 			runtime_config
 			# Set default config.
-			sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+			sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
 		fi
-		GUI_STATUS=$(sysrc -f ${CWDIR}${ARCHIVERSCONF} -qn GUI_ENABLE)
+		GUI_STATUS=$(sysrc -f ${CWDIR}${WIREGUARDCONF} -qn GUI_ENABLE)
 		if [ "${GUI_STATUS}" = "YES" ]; then
 			# Store the installation path and link conf.
-			if ! sysrc -f ${CWDIR}${ARCHIVERSCONF} -n INSTALL_DIR | grep -q "${CWDIR}"; then
-				sysrc -f ${CWDIR}${ARCHIVERSCONF} INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+			if ! sysrc -f ${CWDIR}${WIREGUARDCONF} -n INSTALL_DIR | grep -q "${CWDIR}"; then
+				sysrc -f ${CWDIR}${WIREGUARDCONF} INSTALL_DIR=${CWDIR} >/dev/null 2>&1
 			fi
-			mkdir -p ${ARCHIVERSCONFLINK}
-			ln -fhs ${CWDIR}/conf ${ARCHIVERSCONFLINK}/conf
+			mkdir -p ${WIREGUARDCONFLINK}
+			ln -fhs ${CWDIR}/conf ${WIREGUARDCONFLINK}/conf
 			# Link the gui files.
 			if [ ! -d "${WWWPATH}/ext" ]; then
 				mkdir -p ${WWWPATH}/ext
 			fi
-			ln -fhs ${CWDIR}/gui/ext/archivers-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
-			ln -fhs ${CWDIR}/gui/archivers-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
+			ln -fhs ${CWDIR}/gui/ext/wireguard-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
+			ln -fhs ${CWDIR}/gui/wireguard-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
 			
 		fi
 	fi
@@ -503,14 +503,14 @@ gui_enable()
 {
 	# Relink conf and copy the gui files.
 	if [ -d "${CWDIR}/gui" ]; then
-		mkdir -p ${ARCHIVERSCONFLINK}
-		ln -fhs ${CWDIR}/conf ${ARCHIVERSCONFLINK}/conf
+		mkdir -p ${WIREGUARDCONFLINK}
+		ln -fhs ${CWDIR}/conf ${WIREGUARDCONFLINK}/conf
 		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=YES >/dev/null 2>&1
 		if [ ! -d "${WWWPATH}/ext" ]; then
 			mkdir -p ${WWWPATH}/ext
 		fi
-		ln -fhs ${CWDIR}/gui/ext/archivers-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
-		ln -fhs ${CWDIR}/gui/archivers-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
+		ln -fhs ${CWDIR}/gui/ext/wireguard-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
+		ln -fhs ${CWDIR}/gui/wireguard-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
 		exit 0
 	else
 		error_notify "Error: Extension gui files not found."
@@ -521,11 +521,11 @@ gui_disable()
 {
 	# Disable gui if -t option specified.
 	if [ -d "${CWDIR}/gui" ]; then
-		rm -f ${WWWPATH}/archivers-gui.php
-		rm -rf ${WWWPATH}/ext/archivers-gui
-		rm -f ${LOCALSHAREPATH}/locale-archivers
-		rm -rf ${ARCHIVERSCONFLINK}
-		sysrc -f ${CWDIR}${ARCHIVERSCONF} GUI_ENABLE=NO >/dev/null 2>&1 || error_notify "Error: A problem while removing extension gui files."
+		rm -f ${WWWPATH}/wireguard-gui.php
+		rm -rf ${WWWPATH}/ext/wireguard-gui
+		rm -f ${LOCALSHAREPATH}/locale-wireguard
+		rm -rf ${WIREGUARDCONFLINK}
+		sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=NO >/dev/null 2>&1 || error_notify "Error: A problem while removing extension gui files."
 		exit 0
 	else
 		error_notify "Error: Extension gui files not found."
@@ -608,8 +608,8 @@ reset_install()
 	if [ -d "${CWDIR}/log" ]; then
 		rm -rf ${CWDIR}/log
 	fi
-	if [ -d "${CWDIR}/locale-archivers" ]; then
-		rm -rf ${CWDIR}/locale-archivers
+	if [ -d "${CWDIR}/locale-wireguard" ]; then
+		rm -rf ${CWDIR}/locale-wireguard
 	fi
 	if [ -d "${CWDIR}/${FULLAPPNAME}" ]; then
 		rm -rf ${CWDIR}/${FULLAPPNAME}
@@ -636,10 +636,10 @@ remove_addon()
 		done
 	echo "Proceeding..."
 
-	if [ -d "${WWWPATH}/archivers-gui.php" ]; then
-		rm -f ${WWWPATH}/archivers-gui.php
-		rm -rf ${WWWPATH}/ext/archivers-gui
-		rm -f ${LOCALSHAREPATH}/locale-archivers
+	if [ -d "${WWWPATH}/wireguard-gui.php" ]; then
+		rm -f ${WWWPATH}/wireguard-gui.php
+		rm -rf ${WWWPATH}/ext/wireguard-gui
+		rm -f ${LOCALSHAREPATH}/locale-wireguard
 		rm -rf ${ARCHIVERSCONFLINK}
 	fi
 
@@ -682,9 +682,9 @@ get_versions()
 	fi
 
 	# Display product versions.
-	echo -e "\n7-Zip version:" && ${USRLOCAL}/bin/7z | awk 'NR==2' | cut -d':' -f1
-	echo -e "\nLZ4 version:" && ${USRLOCAL}/bin/lz4 -V | cut -d',' -f1 | sed 's/command line interface\ // ; s/\*\*\*\ //'
-	echo -e "\nLZOP version:" && ${USRLOCAL}/bin/lzop --version | awk 'NR==1, NR==2'
+	#echo -e "\n7-Zip version:" && ${USRLOCAL}/bin/7z | awk 'NR==2' | cut -d':' -f1
+	#echo -e "\nLZ4 version:" && ${USRLOCAL}/bin/lz4 -V | cut -d',' -f1 | sed 's/command line interface\ // ; s/\*\*\*\ //'
+	#echo -e "\nLZOP version:" && ${USRLOCAL}/bin/lzop --version | awk 'NR==1, NR==2'
 	echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
 	exit 0
 }
@@ -701,7 +701,7 @@ exec_status()
 	fi
 }
 
-archivers_init()
+wireguard_init()
 {
 	# Check for system compatibility.
 	if [ ! "${PLATFORM}" = "amd64" ]; then
@@ -727,7 +727,7 @@ while getopts ":ouxrvgth" option; do
 	case ${option} in
 		[h]) echo "Usage: ${SCRIPTNAME} -[option]";
 		echo "Options:"
-		echo "        -u  Upgrade Archivers/Add-On packages."
+		echo "        -u  Upgrade WireGuard/Add-On packages."
 		echo "        -v  Display product version."
 		echo "        -g  Enables the addon GUI."
 		echo "        -t  Disable the addon GUI."
@@ -744,4 +744,4 @@ while getopts ":ouxrvgth" option; do
 		[?]) echo "Invalid option, -h for usage."; exit 1;;
 	esac
 done
-archivers_init
+wireguard_init
