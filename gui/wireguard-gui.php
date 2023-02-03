@@ -91,11 +91,11 @@ if ($_POST) {
 	// Remove only extension related files during cleanup.
 	if (isset($_POST['uninstall']) && $_POST['uninstall']) {
 		bindtextdomain("xigmanas", $textdomain);
-		if (is_link($textdomain_archivers)) mwexec("rm -f {$textdomain_archivers}", true);
+		if (is_link($textdomain_wireguard)) mwexec("rm -f {$textdomain_wireguard}", true);
 		if (is_dir($confdir)) mwexec("rm -Rf {$confdir}", true);
-		mwexec("rm /usr/local/www/archivers-gui.php && rm -R /usr/local/www/ext/archivers-gui", true);
-		mwexec("{$rootfolder}/archivers-init -t", true);		
-		$uninstall_cmd = "echo 'y' | archivers-init -r";
+		mwexec("rm /usr/local/www/wireguard-gui.php && rm -R /usr/local/www/ext/wireguard-gui", true);
+		mwexec("{$rootfolder}/wireguard-init -t", true);		
+		$uninstall_cmd = "echo 'y' | wireguard-init -r";
 		mwexec($uninstall_cmd, true);
 		if (is_link("/usr/local/share/{$prdname}")) mwexec("rm /usr/local/share/{$prdname}", true);
 		if (is_link("/var/cache/pkg")) mwexec("rm /var/cache/pkg", true);
@@ -106,7 +106,7 @@ if ($_POST) {
 			if ($return_val == 0) {
 				if (is_array($config['rc']['postinit']) && is_array($config['rc']['postinit']['cmd'])) {
 					for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) {
-					if (preg_match('/archivers-init/', $config['rc']['postinit']['cmd'][$i])) { unset($config['rc']['postinit']['cmd'][$i]); }
+					if (preg_match('/wireguard-init/', $config['rc']['postinit']['cmd'][$i])) { unset($config['rc']['postinit']['cmd'][$i]); }
 					++$i;
 				}
 			}
@@ -115,7 +115,7 @@ if ($_POST) {
 
 		// Remove postinit cmd in NAS4Free later versions.
 		if (is_array($config['rc']) && is_array($config['rc']['param'])) {
-			$postinit_cmd = "{$rootfolder}/archivers-init";
+			$postinit_cmd = "{$rootfolder}/wireguard-init";
 			$value = $postinit_cmd;
 			$sphere_array = &$config['rc']['param'];
 			$updateconfigfile = false;
@@ -182,21 +182,21 @@ function get_process_pid() {
 }
 
 if (is_ajax()) {
-	$getinfo['archivers'] = get_version_archivers();
+	$getinfo['wireguard'] = get_version_wireguard();
 	$getinfo['ext'] = get_version_ext();
 	render_ajax($getinfo);
 }
 
 bindtextdomain("xigmanas", $textdomain);
 include("fbegin.inc");
-bindtextdomain("xigmanas", $textdomain_archivers);
+bindtextdomain("xigmanas", $textdomain_wireguard);
 ?>
 <script type="text/javascript">//<![CDATA[
 $(document).ready(function(){
 	var gui = new GUI;
-	gui.recall(0, 2000, 'archivers-gui.php', null, function(data) {
+	gui.recall(0, 2000, 'wireguard-gui.php', null, function(data) {
 		$('#getinfo').html(data.info);
-		$('#getinfo_archivers').html(data.archivers);
+		$('#getinfo_wireguard').html(data.wireguard);
 		$('#getinfo_ext').html(data.ext);
 	});
 });
@@ -210,25 +210,25 @@ $(document).ready(function(){
 }
 //-->
 </script>
-<form action="archivers-gui.php" method="post" name="iform" id="iform" onsubmit="spinner()">
+<form action="wireguard-gui.php" method="post" name="iform" id="iform" onsubmit="spinner()">
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
 		<tr><td class="tabcont">
 			<?php if (!empty($input_errors)) print_input_errors($input_errors);?>
 			<?php if (!empty($savemsg)) print_info_box($savemsg);?>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Archivers"));?>
+				<?php html_titleline(gtext("WireGuard"));?>
 				<?php html_text("installation_directory", gtext("Installation directory"), sprintf(gtext("The extension is installed in %s"), $rootfolder));?>
 				<tr>
 					<td class="vncellt"><?=gtext("7-Zip archiver");?></td>
-					<td class="vtable"><span name="getinfo_archivers" id="getinfo_archivers"><?=get_version_7zip()?></span></td>
+					<td class="vtable"><span name="getinfo_wireguard" id="getinfo_wireguard"><?=get_version_7zip()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("LZ4 archiver");?></td>
-					<td class="vtable"><span name="getinfo_archivers" id="getinfo_archivers"><?=get_version_lz4()?></span></td>
+					<td class="vtable"><span name="getinfo_wireguard" id="getinfo_wireguard"><?=get_version_lz4()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("LZOP archiver");?></td>
-					<td class="vtable"><span name="getinfo_archivers" id="getinfo_archivers"><?=get_version_lzop()?></span></td>
+					<td class="vtable"><span name="getinfo_wireguard" id="getinfo_wireguard"><?=get_version_lzop()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Extension version");?></td>
@@ -236,7 +236,7 @@ $(document).ready(function(){
 				</tr>
 			</table>
 			<div id="submit">
-				<input name="upgrade" type="submit" class="formbtn" title="<?=gtext("Upgrade Extension and Archivers Packages");?>" value="<?=gtext("Upgrade");?>" />
+				<input name="upgrade" type="submit" class="formbtn" title="<?=gtext("Upgrade Extension and WireGuard Packages");?>" value="<?=gtext("Upgrade");?>" />
 			</div>
 			<div id="remarks">
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
@@ -250,7 +250,7 @@ $(document).ready(function(){
 				<?php html_separator();?>
 			</table>
 			<div id="submit1">
-				<input name="uninstall" type="submit" class="formbtn" title="<?=gtext("Uninstall Extension and archivers packages completely");?>" value="<?=gtext("Uninstall");?>" onclick="return confirm('<?=gtext("Archivers Extension and packages will be completely removed, ready to proceed?");?>')" />
+				<input name="uninstall" type="submit" class="formbtn" title="<?=gtext("Uninstall Extension and archivers packages completely");?>" value="<?=gtext("Uninstall");?>" onclick="return confirm('<?=gtext("WireGuard Extension and packages will be completely removed, ready to proceed?");?>')" />
 			</div>
 		</td></tr>
 	</table>
