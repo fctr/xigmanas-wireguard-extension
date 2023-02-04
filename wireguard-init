@@ -683,7 +683,7 @@ get_versions()
 
 	# Display product versions.
 	for PKG in ${PKG_BUNDLE}; do
-		echo -e "\n$PKG version:" && pkg version -n $PKG -q | cut -f 1 -d' ' | cut -f 2 -d'-'
+		echo -e "\n$PKG version:" && pkg version -n $PKG -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
 	done
 
 	echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
