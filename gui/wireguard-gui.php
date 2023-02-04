@@ -133,6 +133,7 @@ if ($_POST) {
 
 }
 
+/*
 function get_version_7zip() {
 	global $tarballversion, $prdname;
 	if (is_file("{$tarballversion}")) {
@@ -168,7 +169,7 @@ function get_version_lzop() {
 		return ($result[0] ?? '');
 	}
 }
-
+*/
 function get_version_ext() {
 	global $versionfile;
 	exec("/bin/cat {$versionfile}", $result);
@@ -218,6 +219,7 @@ $(document).ready(function(){
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("WireGuard"));?>
 				<?php html_text("installation_directory", gtext("Installation directory"), sprintf(gtext("The extension is installed in %s"), $rootfolder));?>
+<!--
 				<tr>
 					<td class="vncellt"><?=gtext("7-Zip archiver");?></td>
 					<td class="vtable"><span name="getinfo_wireguard" id="getinfo_wireguard"><?=get_version_7zip()?></span></td>
@@ -230,6 +232,7 @@ $(document).ready(function(){
 					<td class="vncellt"><?=gtext("LZOP archiver");?></td>
 					<td class="vtable"><span name="getinfo_wireguard" id="getinfo_wireguard"><?=get_version_lzop()?></span></td>
 				</tr>
+//-->
 				<tr>
 					<td class="vncellt"><?=gtext("Extension version");?></td>
 					<td class="vtable"><span name="getinfo_ext" id="getinfo_ext"><?=get_version_ext()?></span></td>
@@ -238,12 +241,14 @@ $(document).ready(function(){
 			<div id="submit">
 				<input name="upgrade" type="submit" class="formbtn" title="<?=gtext("Upgrade Extension and WireGuard Packages");?>" value="<?=gtext("Upgrade");?>" />
 			</div>
+<!--
 			<div id="remarks">
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 				<div id="enumeration"><ul><li><a href="https://www.freebsd.org/cgi/man.cgi?query=7z&format=html" target="_blank" > 7-zip Manual</a></li></ul></div>
 				<div id="enumeration"><ul><li><a href="https://www.freebsd.org/cgi/man.cgi?query=lz4&format=html" target="_blank" > LZ4 Manual</a></li></ul></div>
 				<div id="enumeration"><ul><li><a href="https://www.freebsd.org/cgi/man.cgi?query=lzop&format=html" target="_blank" > LZOP Manual</a></li></ul></div>
 			</div>
+//-->
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_separator();?>
 				<?php html_titleline(gtext("Uninstall"));?>
