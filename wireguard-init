@@ -47,9 +47,9 @@ FULLAPPNAME="${APPNAME}-addon"
 PKGCONF="/etc/pkg/FreeBSD.conf"
 USRLOCAL="/usr/local"
 APPPATH="${USRLOCAL}/bin"
-APPMASTER="p7zip"
-APPBIN="7z"
-PKG_BUNDLE="p7zip p7zip-codec-rar lzo2 lzop liblz4"
+APPMASTER="wireguard"
+APPBIN="wg"
+PKG_BUNDLE="bash gettext-runtime indexinfo readline wireguard wireguard-kmod wireguard-tools"
 WWWPATH="/usr/local/www"
 WIREGUARDCONF="/conf/wireguard_config"
 WIREGUARDCONFLINK="/var/etc/wireguardconf"
@@ -682,9 +682,10 @@ get_versions()
 	fi
 
 	# Display product versions.
-	#echo -e "\n7-Zip version:" && ${USRLOCAL}/bin/7z | awk 'NR==2' | cut -d':' -f1
-	#echo -e "\nLZ4 version:" && ${USRLOCAL}/bin/lz4 -V | cut -d',' -f1 | sed 's/command line interface\ // ; s/\*\*\*\ //'
-	#echo -e "\nLZOP version:" && ${USRLOCAL}/bin/lzop --version | awk 'NR==1, NR==2'
+	for PKG in ${PKG_BUNDLE}; do
+		echo -e "\n$PKG version:" && pkg version -n $PKG -q | cut -f 1 -d' ' | cut -f 2 -d'-'
+	done
+
 	echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
 	exit 0
 }
