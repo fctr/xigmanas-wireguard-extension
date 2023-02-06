@@ -241,40 +241,16 @@ function get_process_pid() {
 	exec("/bin/cat {$pidfile}", $state); 
 	return ($state[0]);
 }
-
 function enable_change(enable_change) {
-	/*
-	var endis = !(document.iform.ipv6_enable.checked || enable_change);
-	if (enable_change.name == "ipv6_enable") {
-		endis = !enable_change.checked;
-		document.iform.ipv6type.disabled = endis;
-		document.iform.ipv6addr.disabled = endis;
-		document.iform.ipv6subnet.disabled = endis;
-		document.iform.ipv6gateway.disabled = endis;
-	} else {
-		document.iform.ipv6type.disabled = endis;
-		document.iform.ipv6addr.disabled = endis;
-		document.iform.ipv6subnet.disabled = endis;
-		document.iform.ipv6gateway.disabled = endis;
-	}
-	ipv6_type_change(); */
-}
-function ipv6_type_change() { /*
-	switch (document.iform.ipv6type.selectedIndex) {
-		case 0: // Static
-			var endis = !(document.iform.ipv6_enable.checked);
-			document.iform.ipv6addr.disabled = endis;
-			document.iform.ipv6subnet.disabled = endis;
-			document.iform.ipv6gateway.disabled = endis;
-			document.iform.ipv6privacy.disabled = 1;
-			break;
-		case 1: // Autoconfigure
-			document.iform.ipv6addr.disabled = 1;
-			document.iform.ipv6subnet.disabled = 1;
-			document.iform.ipv6gateway.disabled = 1;
-			document.iform.ipv6privacy.disabled = endis;
-			break;
-	} */
+	var endis = !(document.iform.enable.checked || enable_change);
+/*
+	document.iform.start.disabled = endis;
+	document.iform.stop.disabled = endis;
+	document.iform.restart.disabled = endis;
+	document.iform.backup.disabled = endis;
+	document.iform.backup_path.disabled = endis;
+	document.iform.backup_pathbrowsebtn.disabled = endis;
+	*/
 }
 
 if (is_ajax()) {
@@ -327,7 +303,7 @@ $(document).ready(function(){
 			</div>
 			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline_checkbox('wg_enable', gtext("Interface") . ": " . $interfacename, !empty(isset(&$config['WireGuard']['Interface'])),gtext('Enable'),'enable_change(false)');?>
+				<?php html_titleline_checkbox("enable", gtext("Interface") . ": " . $interfacename, false, gtext("Enable"), "enable_change(false)");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
