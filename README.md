@@ -6,15 +6,15 @@ Installation from Web Interface:
 ================================
 Choose `Tools` from the menu bar, then `Command`. Assuming your persistent data folder is /mnt/data, enter this as the command and click `Execute`.
 ```csh
-mkdir -p /mnt/nvme/extensions/wireguard && cd /mnt/nvme/extensions/wireguard && fetch https://raw.githubusercontent.com/fctr/xigmanas-wireguard-extension/master/wireguard-init && chmod +x wireguard-init && ./wireguard-init && rehash
+mkdir -p /mnt/data/extensions/wireguard && cd /mnt/data/extensions/wireguard && fetch https://raw.githubusercontent.com/fctr/xigmanas-wireguard-extension/master/wireguard-init && chmod +x wireguard-init && ./wireguard-init && rehash
 ```
 
 Installation from SSH:
 ======================
 You'll either need to log in as root, or once at a prompt, gain root by using sudo su. Assuming your persistent data folder is /mnt/data,
 ```csh
-mkdir -p /mnt/nvme/extensions/wireguard
-cd /mnt/nvme/extensions/wireguard
+mkdir -p /mnt/data/extensions/wireguard
+cd /mnt/data/extensions/wireguard
 fetch https://raw.githubusercontent.com/fctr/xigmanas-wireguard-extension/master/wireguard-init
 chmod +x wireguard-init
 ./wireguard-init && rehash
