@@ -292,7 +292,7 @@ $(document).ready(function(){
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface") ":");?>
+				<?php html_titleline(gtext("Interface").":");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey("fctr")?></span></td>
