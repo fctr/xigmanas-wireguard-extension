@@ -231,10 +231,57 @@ $(document).ready(function(){
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Servers"));?>
+				<?php html_titleline(gtext("Interface"));?>
+				<tr>
+					<td class="vncellt"><?=gtext("Name");?></td>
+					<td class="vtable"><span name="getinfo_name" id="getinfo_name"><?=get_name()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Private Key");?></td>
+					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Public Key");?></td>
+					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Addresses");?></td>
+					<td class="vtable"><span name="getinfo_addresses" id="getinfo_addresses"><?=get_addresses()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("DNS Servers");?></td>
+					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Listen Port");?></td>
+					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_listenport()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("MTU");?></td>
+					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu()?></span></td>
+				</tr>
+			</table>
+			<table width="100%" border="0" cellpadding="6" cellspacing="0">
+				<?php html_titleline(gtext("Peers"));?>
+				<tr>
+					<td class="vncellt"><?=gtext("Public Key");?></td>
+					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
+					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_prekey()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Allowed IPs");?></td>
+					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips()?></span></td>
+				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Endpoint");?></td>
 					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint()?></span></td>
+				</tr>
+				<tr>
+					<td class="vncellt"><?=gtext("Persisent Keepalive");?></td>
+					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive()?></span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
