@@ -58,7 +58,6 @@ $logfile = "{$rootfolder}/log/wireguard_ext.log";
 $logevent = "{$rootfolder}/log/wireguard_last_event.log";
 $prdname = "wireguard";
 
-
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
 else {
 // Initialize locales.
@@ -170,6 +169,7 @@ function get_version_lzop() {
 	}
 }
 */
+
 function get_prvkey() {
 	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
