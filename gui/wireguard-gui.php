@@ -57,6 +57,7 @@ $date = date('D M d h:i:s Y', time());   // Equivalent date replacement for the 
 $logfile = "{$rootfolder}/log/wireguard_ext.log";
 $logevent = "{$rootfolder}/log/wireguard_last_event.log";
 $prdname = "wireguard";
+$conffolder = "/usr/local/etc/wireguard";
 
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
 else {
@@ -169,50 +170,64 @@ function get_version_lzop() {
 	}
 }
 */
-
-function get_prvkey() {
-	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_all_conf() {
+	global $conffolder;
+	exec("find {$conffolder}/ -name \"*.conf\" -exec basename {} .conf \;", $result);
+	return ($result);
+}
+function get_prvkey(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_pubkey() {
-	$pkey = get_prvkey();
+function get_pubkey(&$conf) {
+	$pkey = get_prvkey($conf);
 	exec("echo {$pkey} | /usr/local/bin/wg pubkey", $result);
 	return ($result[0]);
 }
-function get_address() {
-	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_address(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_dns() {
-	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_dns(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_srvpubkey() {
-	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_srvpubkey(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_ips() {
-	exec("/usr/bin/awk -F \"=\" '/AllowedIPs/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_ips(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/AllowedIPs/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_endpoint() {
-	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_endpoint(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_psk() {
-	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_psk(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_mtu() {
-	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_mtu(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_port() {
-	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_port(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_keepalive() {
-	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+function get_keepalive(&$conf) {
+	global $conffolder;
+	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
 
@@ -277,57 +292,53 @@ $(document).ready(function(){
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface"));?>
-				<tr>
-					<td class="vncellt"><?=gtext("Name");?></td>
-					<td class="vtable"><span name="getinfo_name" id="getinfo_name">fctr</span></td>
-				</tr>
+				<?php html_titleline(gtext("Interface") ":");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
-					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey()?></span></td>
+					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey()?></span></td>
+					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Address");?></td>
-					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address()?></span></td>
+					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("DNS Servers");?></td>
-					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns()?></span></td>
+					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Listen Port");?></td>
-					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port()?></span></td>
+					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("MTU");?></td>
-					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu()?></span></td>
+					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu("fctr")?></span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("Server"));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey()?></span></td>
+					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
-					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk()?></span></td>
+					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Allowed IPs");?></td>
-					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips()?></span></td>
+					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Endpoint");?></td>
-					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint()?></span></td>
+					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint("fctr")?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Persisent Keepalive");?></td>
-					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive()?></span></td>
+					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive("fctr")?></span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
