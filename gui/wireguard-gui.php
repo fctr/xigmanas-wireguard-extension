@@ -58,6 +58,7 @@ $logfile = "{$rootfolder}/log/wireguard_ext.log";
 $logevent = "{$rootfolder}/log/wireguard_last_event.log";
 $prdname = "wireguard";
 $conffolder = "/usr/local/etc/wireguard";
+$showprivkey = (bool)false;
 
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
 else {
@@ -70,6 +71,12 @@ else {
 if (is_file("{$rootfolder}/postinit")) unlink("{$rootfolder}/postinit");
 
 if ($_POST) {
+	if(isset($_POST['reveal']) && $_POST['reveal']):
+	        $showprivkey = (bool)true;
+		$return_val = 0;
+		$output = [];
+	endif;
+
 	if(isset($_POST['upgrade']) && $_POST['upgrade']):
 		$cmd = sprintf('%1$s/wireguard-init -u > %2$s',$rootfolder,$logevent);
 		$return_val = 0;
@@ -287,7 +294,8 @@ $(document).ready(function(){
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
-						<div id="reveal"><input name="reveal" type="submit" class="formbtn" title="<?=gtext("Reveal Private Key");?>" value="<?=gtext("Reveal");?>" /></div>
+						<div id="reveal_pkeyf" <?php if (!$showprivkey) echo " style='display: none';"; ?>><?=get_prvkey("fctr")?></div>
+						<div id="reveal_pkeyb" <?php if ($showprivkey) echo " style='display: none';"; ?>><input name="reveal" type="submit" class="formbtn" title="<?=gtext("Reveal Private Key");?>" value="<?=gtext("Reveal");?>" /></div>
 					</span></td>
 				</tr>
 				<tr>
