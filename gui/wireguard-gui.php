@@ -175,7 +175,8 @@ function get_prvkey() {
 	return ($result[0]);
 }
 function get_pubkey() {
-	exec("echo {$get_prvkey()} | /usr/local/bin/wg pubkey", $result);
+	$pkey = get_prvkey();
+	exec("echo {$pkey} | /usr/local/bin/wg pubkey", $result);
 	return ($result[0]);
 }
 function get_address() {
