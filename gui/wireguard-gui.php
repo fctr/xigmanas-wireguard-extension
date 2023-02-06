@@ -286,7 +286,7 @@ $(document).ready(function(){
 				<?php html_titleline(gtext("Interface") . ":");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
-					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">HIDDEN
+					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
 						<div id="reveal"><input name="reveal" type="submit" class="formbtn" title="<?=gtext("Reveal Private Key");?>" value="<?=gtext("Reveal");?>" /></div>
 					</span></td>
 				</tr>
