@@ -217,7 +217,7 @@ $(document).ready(function(){
 			<?php if (!empty($input_errors)) print_input_errors($input_errors);?>
 			<?php if (!empty($savemsg)) print_info_box($savemsg);?>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("WireGuard"));?>
+				<?php html_titleline(gtext("General"));?>
 				<?php html_text("installation_directory", gtext("Installation directory"), sprintf(gtext("The extension is installed in %s"), $rootfolder));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Extension version");?></td>
@@ -230,6 +230,13 @@ $(document).ready(function(){
 			<div id="remarks">
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
+			<table width="100%" border="0" cellpadding="6" cellspacing="0">
+				<?php html_titleline(gtext("Servers"));?>
+				<tr>
+					<td class="vncellt"><?=gtext("Endpoint");?></td>
+					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint()?></span></td>
+				</tr>
+			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_separator();?>
 				<?php html_titleline(gtext("Uninstall"));?>
