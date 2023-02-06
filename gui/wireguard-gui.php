@@ -170,6 +170,23 @@ function get_version_lzop() {
 	}
 }
 */
+function get_prvkey() {
+	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+function get_pubkey() {
+	exec("echo {$get_prvkey()} | /usr/local/bin/wg pubkey", $result);
+	return ($result[0]);
+}
+function get_address() {
+	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+function get_srvpubkey() {
+	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+
 function get_version_ext() {
 	global $versionfile;
 	exec("/bin/cat {$versionfile}", $result);
@@ -234,7 +251,7 @@ $(document).ready(function(){
 				<?php html_titleline(gtext("Interface"));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Name");?></td>
-					<td class="vtable"><span name="getinfo_name" id="getinfo_name"><?=get_name()?></span></td>
+					<td class="vtable"><span name="getinfo_name" id="getinfo_name">fctr</span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
@@ -245,27 +262,27 @@ $(document).ready(function(){
 					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey()?></span></td>
 				</tr>
 				<tr>
-					<td class="vncellt"><?=gtext("Addresses");?></td>
-					<td class="vtable"><span name="getinfo_addresses" id="getinfo_addresses"><?=get_addresses()?></span></td>
+					<td class="vncellt"><?=gtext("Address");?></td>
+					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("DNS Servers");?></td>
-					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns()?></span></td>
+					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns">DNS</span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Listen Port");?></td>
-					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_listenport()?></span></td>
+					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport">Listen Port</span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("MTU");?></td>
-					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu()?></span></td>
+					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu">MTU</span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Peers"));?>
+				<?php html_titleline(gtext("Server"));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey()?></span></td>
+					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
