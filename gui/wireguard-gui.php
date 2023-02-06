@@ -133,99 +133,62 @@ if ($_POST) {
 
 }
 
-/*
-function get_version_7zip() {
-	global $tarballversion, $prdname;
-	if (is_file("{$tarballversion}")) {
-		exec("/bin/cat {$tarballversion}", $result);
-		return ($result[0] ?? '');
-	}
-	else {
-		exec("/usr/local/bin/7z | awk 'NR==2' | cut -d':' -f1", $result);
-		return ($result[0] ?? '');
-	}
-}
-
-function get_version_lz4() {
-	global $tarballversion, $prdname;
-	if (is_file("{$tarballversion}")) {
-		exec("/bin/cat {$tarballversion}", $result);
-		return ($result[0] ?? '');
-	}
-	else {
-		exec("/usr/local/bin/lz4 -V | cut -d',' -f1 | sed 's/command line interface\ // ; s/\*\*\*\ //'", $result);
-		return ($result[0] ?? '');
-	}
-}
-
-function get_version_lzop() {
-	global $tarballversion, $prdname;
-	if (is_file("{$tarballversion}")) {
-		exec("/bin/cat {$tarballversion}", $result);
-		return ($result[0] ?? '');
-	}
-	else {
-		exec("echo $(/usr/local/bin/lzop --version | awk 'NR==1, NR==2')", $result);
-		return ($result[0] ?? '');
-	}
-}
-*/
 function get_all_conf() {
 	global $conffolder;
 	exec("find {$conffolder}/ -name \"*.conf\" -exec basename {} .conf \;", $result);
 	return ($result);
 }
-function get_prvkey(&$conf) {
+function get_prvkey($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_pubkey(&$conf) {
+function get_pubkey($conf) {
 	$pkey = get_prvkey($conf);
 	exec("echo {$pkey} | /usr/local/bin/wg pubkey", $result);
 	return ($result[0]);
 }
-function get_address(&$conf) {
+function get_address($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_dns(&$conf) {
+function get_dns($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_srvpubkey(&$conf) {
+function get_srvpubkey($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_ips(&$conf) {
+function get_ips($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/AllowedIPs/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_endpoint(&$conf) {
+function get_endpoint($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_psk(&$conf) {
+function get_psk($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_mtu(&$conf) {
+function get_mtu($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_port(&$conf) {
+function get_port($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
-function get_keepalive(&$conf) {
+function get_keepalive($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	return ($result[0]);
@@ -292,7 +255,7 @@ $(document).ready(function(){
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface").":");?>
+				<?php html_titleline(gtext("Interface") . ":");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey("fctr")?></span></td>
