@@ -281,11 +281,14 @@ $(document).ready(function(){
 			<div id="remarks">
 				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
 			</div>
+			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("Interface") . ":");?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
-					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey"><?=get_prvkey("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">HIDDEN
+						<div id="reveal"><input name="reveal" type="submit" class="formbtn" title="<?=gtext("Reveal Private Key");?>" value="<?=gtext("Reveal");?>" /></div>
+					</span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
@@ -330,7 +333,7 @@ $(document).ready(function(){
 					<td class="vncellt"><?=gtext("Persisent Keepalive");?></td>
 					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive("fctr")?></span></td>
 				</tr>
-			</table>
+			</table><br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_separator();?>
 				<?php html_titleline(gtext("Uninstall"));?>
