@@ -1,3 +1,7 @@
+Installation Notes:
+===================
+**Since XigmaNAS release 7486, extensions are disabled by default. Before installing this extension, log into the web interface and choose** `System` **from the menu bar, then** `Advanced`. **If necessary, uncheck** `Disable scanning of folders for existing extension menus` **and click** `Save`.
+
 Installation from Web Interface:
 ================================
 Choose `Tools` from the menu bar, then `Command`. Assuming your persistent data folder is /mnt/data, enter this as the command and click `Execute`.
