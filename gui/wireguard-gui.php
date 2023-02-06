@@ -200,7 +200,15 @@ function get_endpoint() {
 	return ($result[0]);
 }
 function get_psk() {
-	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+function get_mtu() {
+	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+function get_port() {
+	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
 function get_keepalive() {
@@ -292,11 +300,11 @@ $(document).ready(function(){
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Listen Port");?></td>
-					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport">Listen Port</span></td>
+					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("MTU");?></td>
-					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu">MTU</span></td>
+					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu()?></span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
