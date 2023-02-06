@@ -294,8 +294,10 @@ $(document).ready(function(){
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
-						<div id="reveal_pkeyf" <?php if (!$showprivkey) echo " style='display: none';"; ?>><?=get_prvkey("fctr")?></div>
-						<div id="reveal_pkeyb" <?php if ($showprivkey) echo " style='display: none';"; ?>><input name="reveal" type="submit" class="formbtn" title="<?=gtext("Reveal Private Key");?>" value="<?=gtext("Reveal");?>" /></div>
+						<div id=\"reveal_pkey\">
+						<?php if ($showprivkey) echo get_prvkey("fctr")?>
+						<?php if (!$showprivkey) echo "<input name=\"reveal\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Reveal Private Key") . "\" value=\"" . gtext("Reveal") . "\" />"; ?>
+						</div>
 					</span></td>
 				</tr>
 				<tr>
