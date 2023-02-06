@@ -183,6 +183,10 @@ function get_address() {
 	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
+function get_dns() {
+	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
 function get_srvpubkey() {
 	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
@@ -280,7 +284,7 @@ $(document).ready(function(){
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("DNS Servers");?></td>
-					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns">DNS</span></td>
+					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Listen Port");?></td>
