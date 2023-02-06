@@ -199,6 +199,10 @@ function get_endpoint() {
 	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
 }
+function get_psk() {
+	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
 function get_keepalive() {
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' /usr/local/etc/wireguard/fctr.conf | tr -d ' '", $result);
 	return ($result[0]);
@@ -303,7 +307,7 @@ $(document).ready(function(){
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
-					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey">Pre-shared Key</span></td>
+					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk()?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Allowed IPs");?></td>
