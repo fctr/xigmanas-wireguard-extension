@@ -58,6 +58,7 @@ $logfile = "{$rootfolder}/log/wireguard_ext.log";
 $logevent = "{$rootfolder}/log/wireguard_last_event.log";
 $prdname = "wireguard";
 $conffolder = "/usr/local/etc/wireguard";
+$interfacename = "wg0";
 $showprivkey = (bool)false;
 
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
@@ -290,58 +291,58 @@ $(document).ready(function(){
 			</div>
 			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface") . ":");?>
+				<?php html_titleline(gtext("Interface") . ": " . $interfacename);?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
 						<div id=\"reveal_pkey\">
-						<?php if ($showprivkey) echo get_prvkey("fctr")?>
+						<?php if ($showprivkey) echo get_prvkey($interfacename)?>
 						<?php if (!$showprivkey) echo "<input name=\"reveal\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Reveal Private Key") . "\" value=\"" . gtext("Reveal") . "\" />"; ?>
 						</div>
 					</span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Address");?></td>
-					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("DNS Servers");?></td>
-					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Listen Port");?></td>
-					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("MTU");?></td>
-					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu($interfacename)?></span></td>
 				</tr>
 			</table>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("Server"));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
-					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Allowed IPs");?></td>
-					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Endpoint");?></td>
-					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint($interfacename)?></span></td>
 				</tr>
 				<tr>
 					<td class="vncellt"><?=gtext("Persisent Keepalive");?></td>
-					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive("fctr")?></span></td>
+					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive($interfacename)?></span></td>
 				</tr>
 			</table><br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
