@@ -241,17 +241,17 @@ function get_process_pid() {
 	exec("/bin/cat {$pidfile}", $state); 
 	return ($state[0]);
 }
+/*
 function enable_change($enable_change) {
 	var endis = !(document.iform.enable.checked || enable_change);
-/*
 	document.iform.start.disabled = endis;
 	document.iform.stop.disabled = endis;
 	document.iform.restart.disabled = endis;
 	document.iform.backup.disabled = endis;
 	document.iform.backup_path.disabled = endis;
 	document.iform.backup_pathbrowsebtn.disabled = endis;
-	*/
 }
+	*/
 
 if (is_ajax()) {
 	$getinfo['wireguard'] = get_version_wireguard();
