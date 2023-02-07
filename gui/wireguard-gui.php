@@ -308,13 +308,6 @@ $(document).ready(function(){
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
 						<div id=\"reveal_pkey\">
-<?php
-                        if ($showprivkey) {
-                            echo get_prvkey($interfacename);
-                        } else {
-                            echo "<input name=\"reveal\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Reveal Private Key") . "\" value=\"" . gtext("Reveal") . "\" />";
-                        }
-?>
 						</div>
 					</span></td>
 				</tr>
