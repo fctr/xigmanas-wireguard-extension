@@ -241,7 +241,7 @@ function get_process_pid() {
 	exec("/bin/cat {$pidfile}", $state); 
 	return ($state[0]);
 }
-function enable_change(enable_change) {
+function enable_change($enable_change) {
 	var endis = !(document.iform.enable.checked || enable_change);
 /*
 	document.iform.start.disabled = endis;
