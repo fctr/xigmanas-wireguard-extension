@@ -147,9 +147,17 @@ function get_all_conf() {
 	exec("find {$conffolder}/ -name \"*.conf\" -exec basename {} .conf \;", $result);
 	return ($result);
 }
+function gen_prvkey() {
+	exec("/usr/local/bin/wg genkey", $result);
+	return ($result[0]);
+}
 function get_prvkey($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
+	return ($result[0]);
+}
+function gen_pubkey($prv_key) {
+	exec("echo {$prv_key} | /usr/local/bin/wg pubkey", $result);
 	return ($result[0]);
 }
 function get_pubkey($conf) {
@@ -221,6 +229,15 @@ function get_port($conf) {
 	}
 	return ($result[0]);
 }
+function is_active($conf) {
+	exec("/sbin/ifconfig | grep {$conf}", $result);
+	return !empty($result);
+}
+function startonboot($conf) {
+	exec("/usr/sbin/service -l | grep wg-quick {$conf}", $result);
+	return !empty($result);
+}
+// /usr/sbin/service -l | grep wg-quick
 function get_keepalive($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
@@ -289,81 +306,56 @@ $(document).ready(function(){
 			<?php if (!empty($savemsg)) print_info_box($savemsg);?>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("General"));?>
-				<?php html_text("installation_directory", gtext("Installation directory"), sprintf(gtext("The extension is installed in %s"), $rootfolder));?>
-				<tr>
-					<td class="vncellt"><?=gtext("Extension version");?></td>
-					<td class="vtable"><span name="getinfo_ext" id="getinfo_ext"><?=get_version_ext()?></span></td>
-				</tr>
+				<?php html_text("installation_directory", gtext("Installation directory"), $rootfolder);?>
+				<?php html_text("getinfo_ext", gtext("Extension version"), get_version_ext());?>
 			</table>
 			<div id="submit">
 				<input name="upgrade" type="submit" class="formbtn" title="<?=gtext("Upgrade Extension and WireGuard Packages");?>" value="<?=gtext("Upgrade");?>" />
 			</div>
-			<div id="remarks">
-				<?php html_remark("note", gtext("Info"), sprintf(gtext("For general information visit the following link(s):")));?>
-			</div>
 			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline_checkbox("wg_activate", gtext("Interface") . ": " . $interfacename, false, gtext("Activate"));?>
-				<tr>
-					<td class="vncellt"><?=gtext("Private Key");?></td>
-					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
-						<div id="reveal_pkey">
-<?php
-                        if ($showprivkey) {
-                            echo get_prvkey($interfacename);
-                        } else {
-                            echo "<input name=\"reveal\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Reveal Private Key") . "\" value=\"" . gtext("Reveal") . "\" />";
-                        }
-?>
-						</div>
-					</span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_pubkey" id="getinfo_pubkey"><?=get_pubkey($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Address");?></td>
-					<td class="vtable"><span name="getinfo_address" id="getinfo_address"><?=get_address($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("DNS Servers");?></td>
-					<td class="vtable"><span name="getinfo_dns" id="getinfo_dns"><?=get_dns($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Listen Port");?></td>
-					<td class="vtable"><span name="getinfo_listenport" id="getinfo_listenport"><?=get_port($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("MTU");?></td>
-					<td class="vtable"><span name="getinfo_mtu" id="getinfo_mtu"><?=get_mtu($interfacename)?></span></td>
-				</tr>
-			</table>
-			<table width="100%" border="0" cellpadding="6" cellspacing="0">
+				<?php html_titleline(gtext("Interface"));?>
+				<?php html_text("int_name", gtext("Name"), $interfacename);?>
+				<?php html_text("wg_activate",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); ?>
+				<?php html_text("wg_boot",gtext("Start on Boot"),(startonboot($interfacename)? "Yes" : "No")); ?>
+                <?php html_text("int_pubkey", gtext("Public Key"), get_pubkey($interfacename));?>
+                <?php html_text("int_address", gtext("Address"), get_address($interfacename));?>
+                <?php html_text("int_dns", gtext("DNS Servers"), get_dns($interfacename));?>
+                <?php html_text("int_port", gtext("Listen Port"), get_port($interfacename));?>
+                <?php html_text("int_mtu", gtext("MTU"), get_mtu($interfacename));?>
 				<?php html_titleline(gtext("Server"));?>
-				<tr>
-					<td class="vncellt"><?=gtext("Public Key");?></td>
-					<td class="vtable"><span name="getinfo_srvpubkey" id="getinfo_srvpubkey"><?=get_srvpubkey($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Pre-shared Key");?></td>
-					<td class="vtable"><span name="getinfo_prekey" id="getinfo_prekey"><?=get_psk($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Allowed IPs");?></td>
-					<td class="vtable"><span name="getinfo_ips" id="getinfo_ips"><?=get_ips($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Endpoint");?></td>
-					<td class="vtable"><span name="getinfo_endpoint" id="getinfo_endpoint"><?=get_endpoint($interfacename)?></span></td>
-				</tr>
-				<tr>
-					<td class="vncellt"><?=gtext("Persisent Keepalive");?></td>
-					<td class="vtable"><span name="getinfo_keepalive" id="getinfo_keepalive"><?=get_keepalive($interfacename)?></span></td>
-				</tr>
+                <?php html_text("pubkey", gtext("Public Key"), get_srvpubkey($interfacename));?>
+                <?php html_text("pskkey", gtext("Pre-shared Key"), get_psk($interfacename));?>
+                <?php html_text("ips", gtext("Endpoint"), get_ips($interfacename));?>
+                <?php html_text("endpoint", gtext("Endpoint"), get_endpoint($interfacename));?>
+                <?php html_text("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename));?>
 			</table><br>
+			<div id="submit1">
+				<input name="edit" type="submit" class="formbtn" title="<?=gtext("Edit");?>" value="<?=gtext("Edit");?>" />
+			</div>
+            <br><br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_separator();?>
+				<?php html_titleline(gtext("Interface"));?>
+				<?php html_text("int_name", gtext("Name"), $interfacename);?>
+				<?php html_checkbox("wg_boot",gtext("Start on Boot"),startonboot($interfacename)); ?>
+                <?php html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename),"",true,60,true);?>
+                <?php html_inputbox("int_address", gtext("Address"), get_address($interfacename),"",true,60,true);?>
+                <?php html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),"",true,60,true);?>
+                <?php html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),"",true,20,true);?>
+                <?php html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),"",true,20,true);?>
+				<?php html_titleline(gtext("Server"));?>
+                <?php html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),"",true,60,true);?>
+                <?php html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),"",true,60,true);?>
+                <?php html_inputbox("ips", gtext("Endpoint"), get_ips($interfacename),"",true,60,true);?>
+                <?php html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),"",true,60,true);?>
+                <?php html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),"",true,20,true);?>
+			</table><br>
+			<div id="submit1">
+				<input name="apply" type="submit" class="formbtn" title="<?=gtext("Apply");?>" value="<?=gtext("Apply");?>" />
+				<input name="cancel" type="submit" class="formbtn" title="<?=gtext("Cancel");?>" value="<?=gtext("Cancel");?>" onclick="return confirm('<?=gtext("Discard all changes?");?>')" />
+			</div>
+			<?php html_separator();?>
+			<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline(gtext("Uninstall"));?>
 				<?php html_separator();?>
 			</table>
