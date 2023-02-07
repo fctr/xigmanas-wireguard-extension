@@ -303,7 +303,7 @@ $(document).ready(function(){
 			</div>
 			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface") . ": " . $interfacename);?>
+				<?php html_titleline_checkbox("wg_activate", gtext("Interface") . ": " . $interfacename, false, gtext("Activate"));?>
 				<tr>
 					<td class="vncellt"><?=gtext("Private Key");?></td>
 					<td class="vtable"><span name="getinfo_prvkey" id="getinfo_prvkey">
