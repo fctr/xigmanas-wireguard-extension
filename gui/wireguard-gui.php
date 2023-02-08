@@ -152,6 +152,39 @@ if ($_POST) {
 
 }
 
+function validateKey($key) {
+    if (preg_match("^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$", $key)) return (bool)true;
+    return (bool)false;
+}
+function validateIPList($iplist) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$", $iplist)) return (bool)true;
+    return (bool)false;
+}
+function validateCIDR($cidr) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$", $cidr)) return (bool)true;
+    return (bool)false;
+}
+function validateCIDRList($cidr) {
+    if (preg_match("^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$", $cidr)) return (bool)true;
+    return (bool)false;
+}
+function validateEndpoint($endpoint) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$", $endpoint)) return (bool)true;
+    return (bool)false;
+}
+function validatePort($port) {
+    if (!is_numeric($port)) return (bool)false;
+	if ($port < 0) return (bool)false;
+	if ($port > 65535) return (bool)false;
+	return (bool)true;
+}
+function validateMTU($mtu) {
+    if (!is_numeric($mtu)) return (bool)false;
+	if ($mtu < 8) return (bool)false;
+	if ($mtu > 65535) return (bool)false;
+	return (bool)true;
+}
+
 function get_all_conf() {
 	global $conffolder;
 	exec("find {$conffolder}/ -name \"*.conf\" -exec basename {} .conf \;", $result);
@@ -355,14 +388,14 @@ $(document).ready(function(){
                   html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename), gtext("Leave blank to automatically generate a new one"),true,60,false);
                   html_inputbox("int_address", gtext("Address"), get_address($interfacename),gtext("Use CIDR format (i.e. 10.0.0.1/24)"),true,60,false);
                   html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),gtext("Use a comma to separate multiple entries"),false,60,false);
-                  html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),gtext("This should typically be left blank"),false,20,false);
-                  html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),gtext("This should typically be left blank"),false,20,false);
+                  html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),gtext("0 - 65535. This should typically be left blank"),false,20,false);
+                  html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),gtext("8 - 65535. This should typically be left blank"),false,20,false);
                   html_titleline(gtext("Server"));
                   html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),gtext("This should be copied from your WireGuard server"),true,60,false);
                   html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),gtext("This should be copied from your WireGuard server"),false,60,false);
                   html_inputbox("ips", gtext("Allowed IPs"), get_ips($interfacename),gtext("Use CIDR format (i.e. 10.0.0.1/24) and a comma to separate multiple entries"),true,60,false);
                   html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),gtext("Enter FQDN or IP Address followed by a : and port (i.e. wg.company.com:51820)"),true,60,false);
-                  html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),gtext("Seconds between pings. Typically left blank"),false,20,false);
+                  html_inputbox("keepalive", gtext("Persistent Keepalive"), get_keepalive($interfacename),gtext("Seconds between pings. Typically left blank"),false,20,false);
                 } else {
                   html_text("wg_active",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); 
                   html_text("wg_boot",gtext("Start on Boot"),(startedonboot($interfacename)? "Yes" : "No")); 
@@ -376,7 +409,7 @@ $(document).ready(function(){
                   html_text("pskkey", gtext("Pre-shared Key"), get_psk($interfacename));
                   html_text("ips", gtext("Endpoint"), get_ips($interfacename));
                   html_text("endpoint", gtext("Endpoint"), get_endpoint($interfacename));
-                  html_text("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename));
+                  html_text("keepalive", gtext("Persistent Keepalive"), get_keepalive($interfacename));
                 }
             ?>
 			</table><br>
