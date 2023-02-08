@@ -138,7 +138,7 @@ if ($_POST) {
         if(!validateu16($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
 		$return_val = $editing?1:0;
         if (!$editing) {
-          $myfile = fopen("{$conffolder}/{$interfacename}.conf", "w") or die("Unable to write to {$conffolder}/{$interfacename}.conf");
+          $myfile = fopen("{$rootfolder}/conf/{$interfacename}.conf", "w") or die("Unable to write to {$rootfolder}/conf/{$interfacename}.conf");
           fwrite($myfile, "[Interface]");
           fwrite($myfile, "\nPrivateKey = " . $_POST['int_prvkey']);
           fwrite($myfile, "\nAddress = " . $_POST['int_address']);
@@ -151,6 +151,7 @@ if ($_POST) {
           if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
           fwrite($myfile, "\n");
           fclose($myfile);
+          exec("ln -s {$rootfolder}/conf/{$interfacename}.conf {$conffolder}/{$interfacename}.conf")
           exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
           if ($_POST['wg_boot'] === "yes") {
             if (!startedonboot($interfacename)) {
