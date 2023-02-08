@@ -140,15 +140,16 @@ if ($_POST) {
         if (!$editing) {
           $myfile = fopen("/mnt/nvme/wg0.conf", "w") or die("Unable to write to {$conffolder}/wg0.conf");
           fwrite($myfile, "[Interface]");
-          fwrite($myfile, "PrivateKey = " . $_POST['int_prvkey']);
-          fwrite($myfile, "Address = " . $_POST['int_address']);
-          if (!empty($_POST['int_dns'])) fwrite($myfile, "DNS = " . $_POST['int_dns']);
-          if (!empty($_POST['int_mtu'])) fwrite($myfile, "MTU = " . $_POST['int_mtu']);
-          fwrite($myfile, "\n[Peer]");
-          fwrite($myfile, "PublicKey = " . $_POST['pubkey']);
-          fwrite($myfile, "AllowedIPs = " . $_POST['ips']);
-          fwrite($myfile, "Endpoint = " . $_POST['endpoint']);
-          if (!empty($_POST['keepalive'])) fwrite($myfile, "PersistentKeepalive = " . $_POST['keepalive']);
+          fwrite($myfile, "\nPrivateKey = " . $_POST['int_prvkey']);
+          fwrite($myfile, "\nAddress = " . $_POST['int_address']);
+          if (!empty($_POST['int_dns'])) fwrite($myfile, "\nDNS = " . $_POST['int_dns']);
+          if (!empty($_POST['int_mtu'])) fwrite($myfile, "\n = " . $_POST['int_mtu']);
+          fwrite($myfile, "\n\n[Peer]");
+          fwrite($myfile, "\nPublicKey = " . $_POST['pubkey']);
+          fwrite($myfile, "\nAllowedIPs = " . $_POST['ips']);
+          fwrite($myfile, "\nEndpoint = " . $_POST['endpoint']);
+          if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
+          fwrite($myfile, "\n");
           fclose($myfile);
         }
 		$output = [];
