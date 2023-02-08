@@ -91,13 +91,15 @@ function validateEndpoint($endpoint) {
     if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+)\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$/", $endpoint)) return (bool)true;
     return (bool)false;
 }
-function validateu8($port) {
-    if (!is_numeric($port)) return (bool)false;
-	if (intval($port) < 0) return (bool)false;
-	if (intval($port) > 65535) return (bool)false;
+function validateu16($u16) {
+    if (empty($u16)) return (bool)true;
+    if (!is_numeric($u16)) return (bool)false;
+	if (intval($u16) < 0) return (bool)false;
+	if (intval($u16) > 65535) return (bool)false;
 	return (bool)true;
 }
 function validateMTU($mtu) {
+    if (empty($mtu)) return (bool)true;
     if (!is_numeric($mtu)) return (bool)false;
 	if (intval($mtu) < 8) return (bool)false;
 	if (intval($mtu) > 65535) return (bool)false;
@@ -133,9 +135,9 @@ if ($_POST) {
         if(!empty($_POST['pskkey']) && !validateKey($_POST['pskkey'])) { $editing = (bool)true; $input_errors[] = gtext('Pre-shared key format is incorrect.'); }
         if(!validateCIDRList($_POST['ips'])) { $editing = (bool)true; $input_errors[] = gtext('Allowed IPs is incorrect.'); }
         if(!validateEndpoint($_POST['endpoint'])) { $editing = (bool)true; $input_errors[] = gtext('Endpoint address is incorrect.'); }
-        if(!validateu8($_POST['int_port'])) { $editing = (bool)true; $input_errors[] = gtext('Listen port is incorrect.'); }
+        if(!validateu16($_POST['int_port'])) { $editing = (bool)true; $input_errors[] = gtext('Listen port is incorrect.'); }
         if(!validateMTU($_POST['int_mtu'])) { $editing = (bool)true; $input_errors[] = gtext('MTU is incorrect.'); }
-        if(!validateu8($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
+        if(!validateu16($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
 		$return_val = $editing?1:0;
 		$output = [];
 	endif;
