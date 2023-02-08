@@ -76,7 +76,7 @@ function validateKey($key) {
     return (bool)false;
 }
 function validateIPList($iplist) {
-    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$/", $iplist)) return (bool)true;
+    if (preg_match("/^ *((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}+ *(?:, *((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}+ *)*$/", $iplist)) return (bool)true;
     return (bool)false;
 }
 function validateCIDR($cidr) {
