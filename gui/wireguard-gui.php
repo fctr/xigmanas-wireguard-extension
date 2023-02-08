@@ -152,7 +152,7 @@ if ($_POST) {
           fwrite($myfile, "\n");
           fclose($myfile);
           exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
-          if ($_POST['wg_boot'] == "yes") {
+          if ($_POST['wg_boot'] === "yes") {
             if (!startedonboot($interfacename)) {
                 exec("sysrc wireguard_interfaces=\"wg0\"", $result);
                 exec("service wireguard enable", $result);
