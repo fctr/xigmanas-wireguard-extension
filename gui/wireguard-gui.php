@@ -125,15 +125,18 @@ if ($_POST) {
         // save changes here
         /*
         wg_boot=yes
-        int_prvkey=EPrCWd1N6x9jAqYJYHPLTQvcwuOIrzGJvw%2FKiN2XxE4%3D
-        int_dns=192.168.192.3%2C192.168.192.26
+        int_dns=192.168.192.3,192.168.192.26
         int_port=
         int_mtu=
-        pubkey=fQYKVUW1yK%2Bk2cMqvdk%2FuOt5ZQbuypjNJ%2BEF0EP34gA%3D
-        pskkey=
         */
         $editing = (bool)false;
+        if(isset($_POST['int_prvkey']) && !validateKey($_POST['int_prvkey'])) { $editing = (bool)true; $input_errors[] = gtext('Private key format is incorrect.'); }
+        if(!isset($_POST['int_prvkey'])) { $_POST['int_prvkey'] = gen_prvkey(); }
         if(!validateCIDR($_POST['int_address'])) { $editing = (bool)true; $input_errors[] = gtext('Interface address is incorrect.'); }
+        if(!isset($_POST['int_address'])) { $editing = (bool)true; $input_errors[] = gtext('Interface address can\'t be blank.'); }
+        if(!validateKey($_POST['pubkey'])) { $editing = (bool)true; $input_errors[] = gtext('Public key format is incorrect.'); }
+        if(!isset($_POST['pubkey'])) { $editing = (bool)true; $input_errors[] = gtext('Public key can\'t be blank.'); }
+        if(isset($_POST['pskkey']) && !validateKey($_POST['pskkey'])) { $editing = (bool)true; $input_errors[] = gtext('Pre-shared key format is incorrect.'); }
         if(!validateCIDRList($_POST['ips'])) { $editing = (bool)true; $input_errors[] = gtext('Allowed IPs is incorrect.'); }
         if(!validateEndpoint($_POST['endpoint'])) { $editing = (bool)true; $input_errors[] = gtext('Endpoint address is incorrect.'); }
         if(!validatePing($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
