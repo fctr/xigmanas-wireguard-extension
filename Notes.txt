@@ -1,8 +1,3 @@
-service wireguard enable
-sysrc wireguard_interfaces="wg0"
-service wireguard start
-service wireguard status
-
 Start on boot test
 /usr/sbin/service -e | grep '/wireguard$'
 
@@ -23,36 +18,4 @@ git add .
 git commit -m "Updated PHP"
 git push origin master
 
-
-B64 Test
-^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$
-
-CSV IP Addr Test
-\b(([0-9]{1,3}\.){3}[0-9]{1,3})((?!=|\,).)?\b
-
-FQDN or IP w/port
-(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$
-
-CIDR Test
-^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$
-
-Listen Port
-0-65535
-
-MTU Test
-8-65535
-
 scp /cygdrive/c/Users/Shaun.FCTR/Downloads/Apps/PortableGit/xigmanas-wireguard-extension/gui/wireguard-gui.php root@192.168.39.3:/mnt/nvme/extensions/wireguard/gui/wireguard-gui.php
-
-
-wg_boot=yes
-int_prvkey=EPrCWd1N6x9jAqYJYHPLTQvcwuOIrzGJvw%2FKiN2XxE4%3D
-int_address=10.192.0.39%2F32
-int_dns=192.168.192.3%2C192.168.192.26
-int_port=
-int_mtu=
-pubkey=fQYKVUW1yK%2Bk2cMqvdk%2FuOt5ZQbuypjNJ%2BEF0EP34gA%3D
-pskkey=
-ips=192.168.192.0%2F18%2C10.192.0.0%2F16
-endpoint=vpn.fctr.net%3A51820
-keepalive=25
