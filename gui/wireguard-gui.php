@@ -179,8 +179,8 @@ function get_address($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -188,8 +188,8 @@ function get_dns($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -197,8 +197,8 @@ function get_srvpubkey($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -206,8 +206,8 @@ function get_ips($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/AllowedIPs/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -215,8 +215,8 @@ function get_endpoint($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -224,8 +224,8 @@ function get_psk($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -233,8 +233,8 @@ function get_mtu($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -242,8 +242,8 @@ function get_port($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -274,8 +274,8 @@ function get_keepalive($conf) {
 	global $conffolder;
     global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	if(empty($result) && !$editing) {
-		return("(None Set)");
+	if(empty($result)) {
+		return($editing? "" : "(None Set)");
 	}
 	return ($result[0]);
 }
@@ -352,17 +352,17 @@ $(document).ready(function(){
 				html_text("int_name", gtext("Name"), $interfacename);
                 if ($editing) {
                   html_checkbox("wg_boot",gtext("Start on Boot"),startedonboot($interfacename)); 
-                  html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename),"",true,60,true);
-                  html_inputbox("int_address", gtext("Address"), get_address($interfacename),"",true,60,true);
-                  html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),"",true,60,true);
-                  html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),"",true,20,true);
-                  html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),"",true,20,true);
+                  html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename), gtext("Leave blank to automatically generate a new one"),true,60,false);
+                  html_inputbox("int_address", gtext("Address"), get_address($interfacename),gtext("Use CIDR format (i.e. 10.0.0.1/24)"),true,60,false);
+                  html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),gtext("Use a comma to separate multiple entries"),false,60,false);
+                  html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),gtext("This should typically be left blank"),false,20,false);
+                  html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),gtext("This should typically be left blank"),false,20,false);
                   html_titleline(gtext("Server"));
-                  html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),"",true,60,true);
-                  html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),"",true,60,true);
-                  html_inputbox("ips", gtext("Endpoint"), get_ips($interfacename),"",true,60,true);
-                  html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),"",true,60,true);
-                  html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),"",true,20,true);
+                  html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),gtext("This should be copied from your WireGuard server"),true,60,false);
+                  html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),gtext("This should be copied from your WireGuard server"),false,60,false);
+                  html_inputbox("ips", gtext("Allowed IPs"), get_ips($interfacename),gtext("Use CIDR format (i.e. 10.0.0.1/24) and a comma to separate multiple entries"),true,60,false);
+                  html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),gtext("Enter FQDN or IP Address followed by a : and port (i.e. wg.company.com:51820)"),true,60,false);
+                  html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),gtext("Seconds between pings. Typically left blank"),false,20,false);
                 } else {
                   html_text("wg_active",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); 
                   html_text("wg_boot",gtext("Start on Boot"),(startedonboot($interfacename)? "Yes" : "No")); 
