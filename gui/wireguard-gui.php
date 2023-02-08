@@ -59,8 +59,7 @@ $logevent = "{$rootfolder}/log/wireguard_last_event.log";
 $prdname = "wireguard";
 $conffolder = "/usr/local/etc/wireguard";
 $interfacename = "wg0";
-$showprivkey = (bool)false;
-// $pconfig['wg_enable'] = isset(&$config['WireGuard']['Interface']);
+$editing = (bool)false;
 
 if ($rootfolder == "") $input_errors[] = gtext("Extension installed with fault");
 else {
@@ -73,8 +72,19 @@ else {
 if (is_file("{$rootfolder}/postinit")) unlink("{$rootfolder}/postinit");
 
 if ($_POST) {
-	if(isset($_POST['reveal']) && $_POST['reveal']):
-	        $showprivkey = (bool)true;
+	if(isset($_POST['edit']) && $_POST['edit']):
+        $editing = (bool)true;
+		$return_val = 0;
+		$output = [];
+	endif;
+	if(isset($_POST['cancel']) && $_POST['cancel']):
+        $editing = (bool)false;
+		$return_val = 0;
+		$output = [];
+	endif;
+	if(isset($_POST['apply']) && $_POST['apply']):
+        // save changes here
+        $editing = (bool)false;
 		$return_val = 0;
 		$output = [];
 	endif;
@@ -233,11 +243,25 @@ function is_active($conf) {
 	exec("/sbin/ifconfig | grep {$conf}", $result);
 	return !empty($result);
 }
-function startonboot($conf) {
-	exec("/usr/sbin/service -l | grep wg-quick {$conf}", $result);
+function startedonboot($conf) {
+	exec("/usr/sbin/service -e | grep '/wireguard$'", $result);
 	return !empty($result);
 }
-// /usr/sbin/service -l | grep wg-quick
+function startonboot($conf, $enableboot) {
+    if ($enableboot) {
+      exec("/usr/sbin/sysrc wireguard_interfaces=\"{$conf}\"", $result);
+      if (substr($result, 0, 21) != "wireguard_interfaces:")
+        return false;
+      exec("/usr/sbin/service wireguard enable", $result);
+      return (substr($result, 0, 17) == "wireguard enabled");
+    } else {
+      exec("/usr/sbin/service wireguard delete", $result);
+      if (substr($result, 0, 24) != "wireguard_enable deleted")
+        return false;
+      exec("/usr/sbin/sysrc -x wireguard_interfaces", $result);
+      return true;
+    }
+}
 function get_keepalive($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
@@ -314,45 +338,48 @@ $(document).ready(function(){
 			</div>
 			<br>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface"));?>
-				<?php html_text("int_name", gtext("Name"), $interfacename);?>
-				<?php html_text("wg_activate",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); ?>
-				<?php html_text("wg_boot",gtext("Start on Boot"),(startonboot($interfacename)? "Yes" : "No")); ?>
-                <?php html_text("int_pubkey", gtext("Public Key"), get_pubkey($interfacename));?>
-                <?php html_text("int_address", gtext("Address"), get_address($interfacename));?>
-                <?php html_text("int_dns", gtext("DNS Servers"), get_dns($interfacename));?>
-                <?php html_text("int_port", gtext("Listen Port"), get_port($interfacename));?>
-                <?php html_text("int_mtu", gtext("MTU"), get_mtu($interfacename));?>
-				<?php html_titleline(gtext("Server"));?>
-                <?php html_text("pubkey", gtext("Public Key"), get_srvpubkey($interfacename));?>
-                <?php html_text("pskkey", gtext("Pre-shared Key"), get_psk($interfacename));?>
-                <?php html_text("ips", gtext("Endpoint"), get_ips($interfacename));?>
-                <?php html_text("endpoint", gtext("Endpoint"), get_endpoint($interfacename));?>
-                <?php html_text("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename));?>
+            <?php
+				html_titleline(gtext("Interface"));
+				html_text("int_name", gtext("Name"), $interfacename);
+                if ($editing) {
+                  html_checkbox("wg_boot",gtext("Start on Boot"),startedonboot($interfacename)); 
+                  html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename),"",true,60,true);
+                  html_inputbox("int_address", gtext("Address"), get_address($interfacename),"",true,60,true);
+                  html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),"",true,60,true);
+                  html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),"",true,20,true);
+                  html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),"",true,20,true);
+                  html_titleline(gtext("Server"));
+                  html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),"",true,60,true);
+                  html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),"",true,60,true);
+                  html_inputbox("ips", gtext("Endpoint"), get_ips($interfacename),"",true,60,true);
+                  html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),"",true,60,true);
+                  html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),"",true,20,true);
+                } else {
+                  html_text("wg_active",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); 
+                  html_text("wg_boot",gtext("Start on Boot"),(startedonboot($interfacename)? "Yes" : "No")); 
+                  html_text("int_pubkey", gtext("Public Key"), get_pubkey($interfacename));
+                  html_text("int_address", gtext("Address"), get_address($interfacename));
+                  html_text("int_dns", gtext("DNS Servers"), get_dns($interfacename));
+                  html_text("int_port", gtext("Listen Port"), get_port($interfacename));
+                  html_text("int_mtu", gtext("MTU"), get_mtu($interfacename));
+                  html_titleline(gtext("Server"));
+                  html_text("pubkey", gtext("Public Key"), get_srvpubkey($interfacename));
+                  html_text("pskkey", gtext("Pre-shared Key"), get_psk($interfacename));
+                  html_text("ips", gtext("Endpoint"), get_ips($interfacename));
+                  html_text("endpoint", gtext("Endpoint"), get_endpoint($interfacename));
+                  html_text("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename));
+                }
+            ?>
 			</table><br>
 			<div id="submit1">
-				<input name="edit" type="submit" class="formbtn" title="<?=gtext("Edit");?>" value="<?=gtext("Edit");?>" />
-			</div>
-            <br><br>
-			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php html_titleline(gtext("Interface"));?>
-				<?php html_text("int_name", gtext("Name"), $interfacename);?>
-				<?php html_checkbox("wg_boot",gtext("Start on Boot"),startonboot($interfacename)); ?>
-                <?php html_inputbox("int_prvkey", gtext("Private Key"), get_prvkey($interfacename),"",true,60,true);?>
-                <?php html_inputbox("int_address", gtext("Address"), get_address($interfacename),"",true,60,true);?>
-                <?php html_inputbox("int_dns", gtext("DNS Servers"), get_dns($interfacename),"",true,60,true);?>
-                <?php html_inputbox("int_port", gtext("Listen Port"), get_port($interfacename),"",true,20,true);?>
-                <?php html_inputbox("int_mtu", gtext("MTU"), get_mtu($interfacename),"",true,20,true);?>
-				<?php html_titleline(gtext("Server"));?>
-                <?php html_inputbox("pubkey", gtext("Public Key"), get_srvpubkey($interfacename),"",true,60,true);?>
-                <?php html_inputbox("pskkey", gtext("Pre-shared Key"), get_psk($interfacename),"",true,60,true);?>
-                <?php html_inputbox("ips", gtext("Endpoint"), get_ips($interfacename),"",true,60,true);?>
-                <?php html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),"",true,60,true);?>
-                <?php html_inputbox("keepalive", gtext("Persisent Keepalive"), get_keepalive($interfacename),"",true,20,true);?>
-			</table><br>
-			<div id="submit1">
-				<input name="apply" type="submit" class="formbtn" title="<?=gtext("Apply");?>" value="<?=gtext("Apply");?>" />
-				<input name="cancel" type="submit" class="formbtn" title="<?=gtext("Cancel");?>" value="<?=gtext("Cancel");?>" onclick="return confirm('<?=gtext("Discard all changes?");?>')" />
+            <?php
+            if ($editing) {
+    		  echo "<input name=\"apply\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Apply") . "\" value=\"" . gtext("Apply") . "\" />&nbsp;";
+    		  echo "<input name=\"cancel\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Cancel") . "\" value=\"" . gtext("Cancel") . "\" onclick=\"return confirm('" . gtext("Discard all changes?") . "')\" />";
+            } else {
+    		  echo "<input name=\"edit\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Edit") . "\" value=\"" . gtext("Edit") . "\" />";
+            }
+            ?>
 			</div>
 			<?php html_separator();?>
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
