@@ -72,23 +72,23 @@ else {
 if (is_file("{$rootfolder}/postinit")) unlink("{$rootfolder}/postinit");
 
 function validateKey($key) {
-    if (preg_match("^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$", $key)) return (bool)true;
+    if (preg_match("/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$/", $key)) return (bool)true;
     return (bool)false;
 }
 function validateIPList($iplist) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$", $iplist)) return (bool)true;
+    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$/", $iplist)) return (bool)true;
     return (bool)false;
 }
 function validateCIDR($cidr) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$", $cidr)) return (bool)true;
+    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$/", $cidr)) return (bool)true;
     return (bool)false;
 }
 function validateCIDRList($cidr) {
-    if (preg_match("^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$", $cidr)) return (bool)true;
+    if (preg_match("/^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$/", $cidr)) return (bool)true;
     return (bool)false;
 }
 function validateEndpoint($endpoint) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$", $endpoint)) return (bool)true;
+    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$/", $endpoint)) return (bool)true;
     return (bool)false;
 }
 function validatePort($port) {
