@@ -177,6 +177,7 @@ function get_pubkey($conf) {
 }
 function get_address($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/Address/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -185,6 +186,7 @@ function get_address($conf) {
 }
 function get_dns($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/DNS/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -193,6 +195,7 @@ function get_dns($conf) {
 }
 function get_srvpubkey($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PublicKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -201,6 +204,7 @@ function get_srvpubkey($conf) {
 }
 function get_ips($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/AllowedIPs/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -209,6 +213,7 @@ function get_ips($conf) {
 }
 function get_endpoint($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/Endpoint/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -217,6 +222,7 @@ function get_endpoint($conf) {
 }
 function get_psk($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PresharedKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -225,6 +231,7 @@ function get_psk($conf) {
 }
 function get_mtu($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/MTU/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -233,6 +240,7 @@ function get_mtu($conf) {
 }
 function get_port($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/ListenPort/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
@@ -264,6 +272,7 @@ function startonboot($conf, $enableboot) {
 }
 function get_keepalive($conf) {
 	global $conffolder;
+    global $editing;
 	exec("/usr/bin/awk -F \"=\" '/PersistentKeepalive/ {print $2}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
 	if(empty($result) && !$editing) {
 		return("(None Set)");
