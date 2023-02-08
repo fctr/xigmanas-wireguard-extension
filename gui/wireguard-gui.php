@@ -151,7 +151,7 @@ if ($_POST) {
           if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
           fwrite($myfile, "\n");
           fclose($myfile);
-          exec("ln -s {$rootfolder}/conf/{$interfacename}.conf {$conffolder}/{$interfacename}.conf")
+          exec("ln -s {$rootfolder}/conf/{$interfacename}.conf {$conffolder}/{$interfacename}.conf");
           exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
           if ($_POST['wg_boot'] === "yes") {
             if (!startedonboot($interfacename)) {
