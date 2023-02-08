@@ -142,13 +142,13 @@ if ($_POST) {
           fwrite($myfile, "[Interface]");
           fwrite($myfile, "PrivateKey = " . $_POST['int_prvkey']);
           fwrite($myfile, "Address = " . $_POST['int_address']);
-          if (!isempty($_POST['int_dns'])) fwrite($myfile, "DNS = " . $_POST['int_dns']);
-          if (!isempty($_POST['int_mtu'])) fwrite($myfile, "MTU = " . $_POST['int_mtu']);
+          if (!empty($_POST['int_dns'])) fwrite($myfile, "DNS = " . $_POST['int_dns']);
+          if (!empty($_POST['int_mtu'])) fwrite($myfile, "MTU = " . $_POST['int_mtu']);
           fwrite($myfile, "\n[Peer]");
           fwrite($myfile, "PublicKey = " . $_POST['pubkey']);
           fwrite($myfile, "AllowedIPs = " . $_POST['ips']);
           fwrite($myfile, "Endpoint = " . $_POST['endpoint']);
-          if (!isempty($_POST['keepalive'])) fwrite($myfile, "PersistentKeepalive = " . $_POST['keepalive']);
+          if (!empty($_POST['keepalive'])) fwrite($myfile, "PersistentKeepalive = " . $_POST['keepalive']);
           fclose($myfile);
         }
 		$output = [];
