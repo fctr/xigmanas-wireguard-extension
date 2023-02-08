@@ -93,20 +93,20 @@ function validateEndpoint($endpoint) {
 }
 function validatePort($port) {
     if (!is_numeric($port)) return (bool)false;
-	if ($port < 0) return (bool)false;
-	if ($port > 65535) return (bool)false;
+	if (intval($port) < 0) return (bool)false;
+	if (intval($port) > 65535) return (bool)false;
 	return (bool)true;
 }
 function validateMTU($mtu) {
     if (!is_numeric($mtu)) return (bool)false;
-	if ($mtu < 8) return (bool)false;
-	if ($mtu > 65535) return (bool)false;
+	if (intval($mtu) < 8) return (bool)false;
+	if (intval($mtu) > 65535) return (bool)false;
 	return (bool)true;
 }
 function validatePing($ping) {
     if (!is_numeric($ping)) return (bool)false;
-	if ($ping < 0) return (bool)false;
-	if ($ping > 65535) return (bool)false;
+	if (intval($ping) < 0) return (bool)false;
+	if (intval($ping) > 65535) return (bool)false;
 	return (bool)true;
 }
 
