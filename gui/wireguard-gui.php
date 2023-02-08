@@ -121,9 +121,6 @@ if ($_POST) {
         // save changes here
         /*
         wg_boot=yes
-        int_dns=192.168.192.3,192.168.192.26
-        int_port=
-        int_mtu=
         */
         $editing = (bool)false;
         if(!empty($_POST['int_prvkey']) && !validateKey($_POST['int_prvkey'])) { $editing = (bool)true; $input_errors[] = gtext('Private key format is incorrect.'); }
@@ -133,12 +130,27 @@ if ($_POST) {
         if(!validateKey($_POST['pubkey'])) { $editing = (bool)true; $input_errors[] = gtext('Public key format is incorrect.'); }
         if(empty($_POST['pubkey'])) { $editing = (bool)true; $input_errors[] = gtext('Public key can\'t be blank.'); }
         if(!empty($_POST['pskkey']) && !validateKey($_POST['pskkey'])) { $editing = (bool)true; $input_errors[] = gtext('Pre-shared key format is incorrect.'); }
+        if(!empty($_POST['int_dns']) && !validateIPList($_POST['int_dns'])) { $editing = (bool)true; $input_errors[] = gtext('DNS servers format is incorrect.'); }
         if(!validateCIDRList($_POST['ips'])) { $editing = (bool)true; $input_errors[] = gtext('Allowed IPs is incorrect.'); }
         if(!validateEndpoint($_POST['endpoint'])) { $editing = (bool)true; $input_errors[] = gtext('Endpoint address is incorrect.'); }
         if(!validateu16($_POST['int_port'])) { $editing = (bool)true; $input_errors[] = gtext('Listen port is incorrect.'); }
         if(!validateMTU($_POST['int_mtu'])) { $editing = (bool)true; $input_errors[] = gtext('MTU is incorrect.'); }
         if(!validateu16($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
 		$return_val = $editing?1:0;
+        if (!$editing) {
+          $myfile = fopen("/mnt/nvme/wg0.conf", "w") or die("Unable to write to {$conffolder}/wg0.conf");
+          fwrite($myfile, "[Interface]");
+          fwrite($myfile, "PrivateKey = " . $_POST['int_prvkey']);
+          fwrite($myfile, "Address = " . $_POST['int_address']);
+          if (!isempty($_POST['int_dns'])) fwrite($myfile, "DNS = " . $_POST['int_dns']);
+          if (!isempty($_POST['int_mtu'])) fwrite($myfile, "MTU = " . $_POST['int_mtu']);
+          fwrite($myfile, "\n[Peer]");
+          fwrite($myfile, "PublicKey = " . $_POST['pubkey']);
+          fwrite($myfile, "AllowedIPs = " . $_POST['ips']);
+          fwrite($myfile, "Endpoint = " . $_POST['endpoint']);
+          if (!isempty($_POST['keepalive'])) fwrite($myfile, "PersistentKeepalive = " . $_POST['keepalive']);
+          fclose($myfile);
+        }
 		$output = [];
 	endif;
 
