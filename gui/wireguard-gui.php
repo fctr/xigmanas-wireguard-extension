@@ -80,11 +80,11 @@ function validateIPList($iplist) {
     return (bool)false;
 }
 function validateCIDR($cidr) {
-    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$/", $cidr)) return (bool)true;
+    if (preg_match("/^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)$/", $cidr)) return (bool)true;
     return (bool)false;
 }
 function validateCIDRList($cidr) {
-    if (preg_match("/^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$/", $cidr)) return (bool)true;
+    if (preg_match("/^ *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *(?:, *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *)*$/", $cidr)) return (bool)true;
     return (bool)false;
 }
 function validateEndpoint($endpoint) {
