@@ -244,7 +244,7 @@ function gen_prvkey() {
 function get_prvkey($conf) {
 	global $conffolder;
 	exec("/usr/bin/awk -F \"=\" '/PrivateKey/ {print $2 \"=\"}' {$conffolder}/{$conf}.conf | tr -d ' '", $result);
-	return ($result[0]);
+	return ($result);
 }
 function gen_pubkey($prv_key) {
 	exec("echo {$prv_key} | /usr/local/bin/wg pubkey", $result);
