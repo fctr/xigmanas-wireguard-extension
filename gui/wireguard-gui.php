@@ -71,6 +71,45 @@ else {
 }
 if (is_file("{$rootfolder}/postinit")) unlink("{$rootfolder}/postinit");
 
+function validateKey($key) {
+    if (preg_match("^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$", $key)) return (bool)true;
+    return (bool)false;
+}
+function validateIPList($iplist) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$", $iplist)) return (bool)true;
+    return (bool)false;
+}
+function validateCIDR($cidr) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$", $cidr)) return (bool)true;
+    return (bool)false;
+}
+function validateCIDRList($cidr) {
+    if (preg_match("^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$", $cidr)) return (bool)true;
+    return (bool)false;
+}
+function validateEndpoint($endpoint) {
+    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$", $endpoint)) return (bool)true;
+    return (bool)false;
+}
+function validatePort($port) {
+    if (!is_numeric($port)) return (bool)false;
+	if ($port < 0) return (bool)false;
+	if ($port > 65535) return (bool)false;
+	return (bool)true;
+}
+function validateMTU($mtu) {
+    if (!is_numeric($mtu)) return (bool)false;
+	if ($mtu < 8) return (bool)false;
+	if ($mtu > 65535) return (bool)false;
+	return (bool)true;
+}
+function validatePing($ping) {
+    if (!is_numeric($ping)) return (bool)false;
+	if ($ping < 0) return (bool)false;
+	if ($ping > 65535) return (bool)false;
+	return (bool)true;
+}
+
 if ($_POST) {
 	if(isset($_POST['edit']) && $_POST['edit']):
         $editing = (bool)true;
@@ -84,7 +123,20 @@ if ($_POST) {
 	endif;
 	if(isset($_POST['apply']) && $_POST['apply']):
         // save changes here
+        /*
+        wg_boot=yes
+        int_prvkey=EPrCWd1N6x9jAqYJYHPLTQvcwuOIrzGJvw%2FKiN2XxE4%3D
+        int_dns=192.168.192.3%2C192.168.192.26
+        int_port=
+        int_mtu=
+        pubkey=fQYKVUW1yK%2Bk2cMqvdk%2FuOt5ZQbuypjNJ%2BEF0EP34gA%3D
+        pskkey=
+        */
         $editing = (bool)false;
+        if(!validateCIDR($_POST['int_address'])) $editing = (bool)true;
+        if(!validateCIDRList($_POST['ips'])) $editing = (bool)true;
+        if(!validateEndpoint($_POST['endpoint'])) $editing = (bool)true;
+        if(!validatePing($_POST['keepalive'])) $editing = (bool)true;
 		$return_val = 0;
 		$output = [];
 	endif;
@@ -152,38 +204,6 @@ if ($_POST) {
 
 }
 
-function validateKey($key) {
-    if (preg_match("^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$", $key)) return (bool)true;
-    return (bool)false;
-}
-function validateIPList($iplist) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}((?!=|\,).)?\b$", $iplist)) return (bool)true;
-    return (bool)false;
-}
-function validateCIDR($cidr) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$", $cidr)) return (bool)true;
-    return (bool)false;
-}
-function validateCIDRList($cidr) {
-    if (preg_match("^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?)((?!=|\,).)?\b$", $cidr)) return (bool)true;
-    return (bool)false;
-}
-function validateEndpoint($endpoint) {
-    if (preg_match("^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+))\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$", $endpoint)) return (bool)true;
-    return (bool)false;
-}
-function validatePort($port) {
-    if (!is_numeric($port)) return (bool)false;
-	if ($port < 0) return (bool)false;
-	if ($port > 65535) return (bool)false;
-	return (bool)true;
-}
-function validateMTU($mtu) {
-    if (!is_numeric($mtu)) return (bool)false;
-	if ($mtu < 8) return (bool)false;
-	if ($mtu > 65535) return (bool)false;
-	return (bool)true;
-}
 
 function get_all_conf() {
 	global $conffolder;
