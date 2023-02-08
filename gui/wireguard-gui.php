@@ -133,11 +133,11 @@ if ($_POST) {
         pskkey=
         */
         $editing = (bool)false;
-        if(!validateCIDR($_POST['int_address'])) $editing = (bool)true;
-        if(!validateCIDRList($_POST['ips'])) $editing = (bool)true;
-        if(!validateEndpoint($_POST['endpoint'])) $editing = (bool)true;
-        if(!validatePing($_POST['keepalive'])) $editing = (bool)true;
-		$return_val = 0;
+        if(!validateCIDR($_POST['int_address'])) { $editing = (bool)true; $input_errors[] = gtext('Interface address is incorrect.'); }
+        if(!validateCIDRList($_POST['ips'])) { $editing = (bool)true; $input_errors[] = gtext('Allowed IPs is incorrect.'); }
+        if(!validateEndpoint($_POST['endpoint'])) { $editing = (bool)true; $input_errors[] = gtext('Endpoint address is incorrect.'); }
+        if(!validatePing($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
+		$return_val = $editing?1:0;
 		$output = [];
 	endif;
 
