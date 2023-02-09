@@ -164,8 +164,8 @@ extension_upgrade()
 
         # Compare version files and fetch latest package if available.
         if [ -f "${CWDIR}/update/version" ]; then
-                UPDATEVER=$(cat "${CWDIR}/update/version" | tr -d .)
-                CURRENTVER=$(cat "${CWDIR}/version" | tr -d .)
+                UPDATEVER=$(tr -d . < "${CWDIR}/update/version")
+                CURRENTVER=$(tr -d . < "${CWDIR}/version")
                 if [ "${UPDATEVER}" -gt "${CURRENTVER}" ]; then
                         echo "New ${FULLAPPNAME} package found, performing upgrade..."
                         fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 "${GITURL}" || \
