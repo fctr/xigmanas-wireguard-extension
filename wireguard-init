@@ -390,7 +390,7 @@ rem_symlinkdir()
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/lib" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/lib" || return
+                cd "${INSTALLPATH}/${USRLOCAL}/lib" || return
                 for file in *
                         do
                                 rm -rf ${USRLOCAL}/lib/${file}
