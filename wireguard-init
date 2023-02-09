@@ -621,7 +621,7 @@ pkg_upgrade()
                         PKG=$(pkg info | grep ${APPNAME} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Issue wireguard upgrade command in Full platforms.
-                        pkg upgrade -y ${PKG} || \
+                        pkg upgrade -y "${PKG}" || \
                         error_notify "Error: A problem has occurred while upgrading ${APPNAME}."
 
                         # Set new version.
@@ -652,7 +652,7 @@ reset_install()
                 rm -rf "${CWDIR}/locale-wireguard"
         fi
         if [ -d "${CWDIR}/${FULLAPPNAME}" ]; then
-                rm -rf "${CWDIR}/${FULLAPPNAME}"
+                rm -rf "${CWDIR:?}/${FULLAPPNAME:?}"
         fi
         if [ -d "${CWDIR}/download" ]; then
                 rm -rf "${CWDIR}/download"
@@ -723,10 +723,12 @@ get_versions()
 
         # Display product versions.
         for PKG in ${PKG_BUNDLE}; do
-                echo -e "\n$PKG version:" && pkg version -n $PKG -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
+#                echo -e "\n$PKG version:" && pkg version -n $PKG -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
+                echo "\n$PKG version:" && pkg version -n "$PKG" -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
         done
 
-        echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
+#        echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
+        echo "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
         exit 0
 }
 
@@ -735,10 +737,10 @@ exec_status()
         # Log on startup success, else logging with faults.
         if [ $? -eq 0 ]; then
                 MSG="script has been started successfully!"
-                logger -t ${SCRIPTNAME} ${MSG}
+                logger -t "${SCRIPTNAME}" "${MSG}"
         else
                 MSG="script started with faults"
-                logger -t ${SCRIPTNAME} ${MSG}
+                logger -t "${SCRIPTNAME}" "${MSG}"
         fi
 }
 
