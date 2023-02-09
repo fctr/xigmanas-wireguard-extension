@@ -596,17 +596,17 @@ pkg_upgrade()
                         # Set product version variables.
                         # We have to use the manifest file for version comparison for Embedded platform.
                         NOWPKG=$(grep '"version":"' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | cut -d',' -f3 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
-                        NEWPKG=$(pkg search ${PKG} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        NEWPKG=$(pkg search "${PKG}" | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Extract new fetched packages for Embedded platform on new version.
                         if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
                                 echo "New ${PKG} package found, performing upgrade..."
-                                NEWPKG_VER=$(pkg search ${PKG} | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
+                                NEWPKG_VER=$(pkg search "${PKG}" | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
                                 pkg fetch -y -o "${CWDIR}/download" "${PKG}-${NEWPKG_VER}" || \
-                                    error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
+                                    error_notify "Error: A problem has occurred while fetching/locating ${PKG}."
                                 echo "Extracting ${PKG}-${NEWPKG_VER}..."
                                 tar -Jxf "${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.[tp][xk][zg]" -C "${CWDIR}/${FULLAPPNAME}/" || \
-                                    error_notify "Error: A problem has occurred while extractig files."
+                                    error_notify "Error: A problem has occurred while extracting files."
                                 mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}/"
                         else
                                 echo "No new ${PKG} package available!"
