@@ -112,6 +112,10 @@ wireguard_initial_download()
                 pkg fetch -y -o ${CWDIR}/download ${PKG_BUNDLE} || \
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
+                if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
+                        # Must create fake conf file
+                        touch ${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf
+                fi
         fi
 }
 
@@ -122,7 +126,7 @@ wireguard_pkg_extract()
                 if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
                         echo "Extracting ${PKG}..."
                         tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg] -C ${CWDIR}/${FULLAPPNAME}/ || \
-                        error_notify "Error: A problem has occurred while extractig ${PKG} files."
+                        error_notify "Error: A problem has occurred while extracting ${PKG} files."
                         mkdir -p ${CWDIR}/${FULLAPPNAME}/${PKG}
                         mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}
                         rm ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]
@@ -276,7 +280,7 @@ sys_symlinkdir()
                 done
                 for file in *.ko
                         do
-                                kldload /boot/modules/${file}
+                                kldload -n /boot/modules/${file}
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
