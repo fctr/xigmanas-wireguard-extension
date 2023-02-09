@@ -31,18 +31,18 @@
 PATH=${PATH}:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 # Determine full working directory.
-CWDIR=$(dirname $(realpath $0))
+CWDIR=$(dirname "$(realpath "$0")")
 
 # Global variables.
 PLATFORM=$(uname -m)
 PRODUCT=$(uname -i)
 PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.')
 PRDPLATFORM=$(cat /etc/platform)
-SCRIPTNAME=$(basename $0)
+SCRIPTNAME=$(basename "$0")
 CONFIG="/cf/conf/config.xml"
 APPNAME="wireguard"
 EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
-WIREGUARDLOGFILE=${EXTLOGFILE}
+#WIREGUARDLOGFILE=${EXTLOGFILE}
 FULLAPPNAME="${APPNAME}-addon"
 PKGCONF="/etc/pkg/FreeBSD.conf"
 USRLOCAL="/usr/local"
@@ -63,20 +63,21 @@ error_notify()
         # Log/notify message on error and exit.
         MSG="$*"
         logger -t "${SCRIPTNAME}" "${MSG}"
-        echo -e "$*" >&2; exit 1
+        #echo -e "$*" >&2; exit 1
+        echo "$*" >&2; exit 1
 }
 
 runtime_config()
 {
         # Create required directories if missing.
         if [ ! -d "${CWDIR}/conf" ]; then
-                mkdir -p ${CWDIR}/conf
+                mkdir -p "${CWDIR}/conf"
         fi
         if [ ! -d "${CWDIR}/log" ]; then
-                mkdir -p ${CWDIR}/log
+                mkdir -p "${CWDIR}/log"
         fi
         if [ ! -d "${CWDIR}/locale-wireguard" ]; then
-                mkdir -p ${CWDIR}/locale-wireguard
+                mkdir -p "${CWDIR}/locale-wireguard"
         fi
 }
 
@@ -98,7 +99,7 @@ wireguard_native_download()
                 # Check if wireguard already exist.
                 if [ ! -f "${APPPATH}/${APPBIN}" ]; then
                         update_freebsdconf
-                        pkg install -y ${PKG_BUNDLE} || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
+                        pkg install -y "${PKG_BUNDLE}" || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 fi
         fi
 }
@@ -109,12 +110,12 @@ wireguard_initial_download()
         if [ ! -f "${CWDIR}/${FULLAPPNAME}/${APPPATH}/${APPBIN}" ]; then
                 # Fetch wireguard packages.
                 update_freebsdconf
-                pkg fetch -y -o ${CWDIR}/download ${PKG_BUNDLE} || \
+                pkg fetch -y -o "${CWDIR}/download" "${PKG_BUNDLE}" || \
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
                 if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
                         # Must create fake conf file
-                        touch ${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf
+                        touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
                 fi
         fi
 }
@@ -125,11 +126,11 @@ wireguard_pkg_extract()
                 # Extract fetched package for Embedded platform.
                 if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
                         echo "Extracting ${PKG}..."
-                        tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg] -C ${CWDIR}/${FULLAPPNAME}/ || \
+                        tar -Jxf "${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]" -C "${CWDIR}/${FULLAPPNAME}/" || \
                         error_notify "Error: A problem has occurred while extracting ${PKG} files."
-                        mkdir -p ${CWDIR}/${FULLAPPNAME}/${PKG}
-                        mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}
-                        rm ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]
+                        mkdir -p "${CWDIR}/${FULLAPPNAME}/${PKG}"
+                        mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}"
+                        rm "${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]"
                         echo "Done!"
                 fi
         done
@@ -140,14 +141,14 @@ ext_initial_download()
         # Always ensure the version file is present, otherwise update the extension files on startup.
         if [ ! -f "${CWDIR}/version" ]; then
                 echo "Fetching and extracting extension files..."
-                mkdir -p ${CWDIR}/update
-                fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${GITURL} || \
+                mkdir -p "${CWDIR}/update"
+                fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 ${GITURL} || \
                 error_notify "Error: A problem has occurred while fetching extension package."
-                tar -xf ${CWDIR}/update/${BRANCH}.zip --exclude='.git*' --strip-components 1 -C ${CWDIR}/update
-                chmod +x ${CWDIR}/update/${SCRIPTNAME}
-                cp -rf ${CWDIR}/update/* ${CWDIR}/
-                rm -r ${CWDIR}/update
-                rm -f ${CWDIR}/${BRANCH}.zip
+                tar -xf "${CWDIR}/update/${BRANCH}.zip" --exclude='.git*' --strip-components 1 -C "${CWDIR}/update"
+                chmod +x "${CWDIR}/update/${SCRIPTNAME}"
+                cp -rf "${CWDIR}/update/*" "${CWDIR}/"
+                rm -r "${CWDIR}/update"
+                rm -f "${CWDIR}/${BRANCH}.zip"
                 echo "Done!"
         fi
 }
@@ -288,6 +289,20 @@ sys_symlinkdir()
                 for file in *
                         do
                                 ln -fhs ${INSTALLPATH}/${USRLOCAL}/bin/${file} ${USRLOCAL}/bin/${file}
+                done
+        fi
+        if [ -d "${INSTALLPATH}/${USRLOCAL}/etc" ]; then
+                cd ${INSTALLPATH}/${USRLOCAL}/etc
+                for file in *
+                        do
+                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/etc/${file} ${USRLOCAL}/etc/${file}
+                done
+        fi
+        if [ -d "${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}" ]; then
+                cd ${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}
+                for file in *
+                        do
+                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}/${file} ${USRLOCAL}/etc/${APPNAME}/${file}
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/include" ]; then
