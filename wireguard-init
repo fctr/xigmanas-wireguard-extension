@@ -171,7 +171,7 @@ extension_upgrade()
                         fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 "${GITURL}" || \
                             error_notify "Error: A problem has occurred while fetching extension package."
                         tar -xf "${CWDIR}/update/${BRANCH}.zip" --exclude='.git*' --strip-components 1 -C "${CWDIR}/update"
-                        chmod +x "${CWDIR}/update/${SCRIPTNAME}""
+                        chmod +x "${CWDIR}/update/${SCRIPTNAME}"
                         rm -f "${CWDIR}/update/${BRANCH}.zip"
                         cp -rf "${CWDIR}/update/*" "${CWDIR}/"
                         rm -r "${CWDIR}/update"
