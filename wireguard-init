@@ -501,8 +501,8 @@ EOF
                 # Execute temporary php script.
                 if [ "${OBI_INSTALL}" != "ON" ]; then
                         echo "Creating postinit command..."
-                        php-cgi -f "${CWDIR}/postinit" && rm "${CWDIR}/postinit" || \
-                            error_notify "Error: A problem has occurred while executing postinit file."
+                        php-cgi -f "${CWDIR}/postinit" && (rm "${CWDIR}/postinit" || \
+                            error_notify "Error: A problem has occurred while executing postinit file.")
                         echo "Done!"
                 fi
                 sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
