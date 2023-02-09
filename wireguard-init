@@ -158,32 +158,32 @@ extension_upgrade()
         # Perform an online extension upgrade.
         DATE=$(date +"%a %b %d %T %Y")
         echo "Looking for new extension package!"
-        mkdir -p ${CWDIR}/update
-        fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${VERFILE} || \
+        mkdir -p "${CWDIR}/update"
+        fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 "${VERFILE}" || \
         error_notify "Error: A problem has occurred while fetching version file."
 
         # Compare version files and fetch latest package if available.
         if [ -f "${CWDIR}/update/version" ]; then
-                UPDATEVER=$(cat ${CWDIR}/update/version | tr -d .)
-                CURRENTVER=$(cat ${CWDIR}/version | tr -d .)
+                UPDATEVER=$(cat "${CWDIR}/update/version" | tr -d .)
+                CURRENTVER=$(cat "${CWDIR}/version" | tr -d .)
                 if [ "${UPDATEVER}" -gt "${CURRENTVER}" ]; then
                         echo "New ${FULLAPPNAME} package found, performing upgrade..."
-                        fetch -ao ${CWDIR}/update --no-verify-peer --timeout=30 ${GITURL} || \
-                        error_notify "Error: A problem has occurred while fetching extension package."
-                        tar -xf ${CWDIR}/update/${BRANCH}.zip --exclude='.git*' --strip-components 1 -C ${CWDIR}/update
-                        chmod +x ${CWDIR}/update/${SCRIPTNAME}
-                        rm -f ${CWDIR}/update/${BRANCH}.zip
-                        cp -rf ${CWDIR}/update/* ${CWDIR}/
-                        rm -r ${CWDIR}/update
-                        rm -f ${CWDIR}/${BRANCH}.zip
+                        fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 "${GITURL}" || \
+                            error_notify "Error: A problem has occurred while fetching extension package."
+                        tar -xf "${CWDIR}/update/${BRANCH}.zip" --exclude='.git*' --strip-components 1 -C "${CWDIR}/update"
+                        chmod +x "${CWDIR}/update/${SCRIPTNAME}""
+                        rm -f "${CWDIR}/update/${BRANCH}.zip"
+                        cp -rf "${CWDIR}/update/*" "${CWDIR}/"
+                        rm -r "${CWDIR}/update"
+                        rm -f "${CWDIR}/${BRANCH}.zip"
 
                         # Logging the update event.
-                        UPDATEVERSION=$(cat ${CWDIR}/version)
+                        UPDATEVERSION=$(cat "${CWDIR}/version")
                         echo "${DATE}: extension upgraded to ${UPDATEVERSION}" >> ${EXTLOGFILE}
                         echo "Extension package upgrade completed!"
                 else
                         echo "Extension package is on the latest version!"
-                        rm -r ${CWDIR}/update
+                        rm -r "${CWDIR}/update"
                 fi
         fi
 }
@@ -201,24 +201,24 @@ create_addon_env()
 {
         # Create required directories.
         if [ ! -d "${CWDIR}/conf" ]; then
-                mkdir -p ${CWDIR}/conf
+                mkdir -p "${CWDIR}/conf"
         fi
         if [ ! -d "${CWDIR}/locale-wireguard" ]; then
-                mkdir -p ${CWDIR}/locale-wireguard
+                mkdir -p "${CWDIR}/locale-wireguard"
         fi
         if [ ! -d "${CWDIR}/download/All" ]; then
-                mkdir -p ${CWDIR}/download/All
+                mkdir -p "${CWDIR}/download/All"
         fi
         if [ ! -d "${CWDIR}/log" ]; then
-                mkdir -p ${CWDIR}/log
+                mkdir -p "${CWDIR}/log"
         fi
         if [ ! -d "${CWDIR}/${FULLAPPNAME}" ]; then
-                mkdir -p ${CWDIR}/${FULLAPPNAME}
+                mkdir -p "${CWDIR}/${FULLAPPNAME}"
         fi
 
         # Link wireguard-init to /usr/local/sbin.
         if [ ! -f "${USRLOCAL}/sbin/${SCRIPTNAME}" ]; then
-                ln -fs ${CWDIR}/${SCRIPTNAME} ${USRLOCAL}/sbin/${SCRIPTNAME}
+                ln -fs "${CWDIR}/${SCRIPTNAME}" "${USRLOCAL}/sbin/${SCRIPTNAME}"
         fi
 }
 
