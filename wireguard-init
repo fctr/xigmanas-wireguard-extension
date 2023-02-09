@@ -652,7 +652,7 @@ reset_install()
                 rm -rf "${CWDIR}/locale-wireguard"
         fi
         if [ -d "${CWDIR}/${FULLAPPNAME}" ]; then
-                rm -rf "${CWDIR}/${FULLAPPNAME}""
+                rm -rf "${CWDIR}/${FULLAPPNAME}"
         fi
         if [ -d "${CWDIR}/download" ]; then
                 rm -rf "${CWDIR}/download"
