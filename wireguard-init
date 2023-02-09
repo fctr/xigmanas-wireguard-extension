@@ -55,7 +55,7 @@ WIREGUARDCONF="/conf/wireguard_config"
 WIREGUARDCONFLINK="/var/etc/wireguardconf"
 INSTALLPATH="${CWDIR}/${FULLAPPNAME}"
 BRANCH="master"
-GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/archive/refs/heads/${BRANCH}.zip"
+GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
 VERFILE="https://raw.githubusercontent.com/fctr/xigmanas-${APPNAME}-extension/${BRANCH}/version"
 
 error_notify()
