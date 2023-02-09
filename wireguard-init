@@ -501,11 +501,11 @@ EOF
                 # Execute temporary php script.
                 if [ "${OBI_INSTALL}" != "ON" ]; then
                         echo "Creating postinit command..."
-                        php-cgi -f ${CWDIR}/postinit && rm ${CWDIR}/postinit || \
-                        error_notify "Error: A problem has occurred while executing postinit file."
+                        php-cgi -f "${CWDIR}/postinit" && rm "${CWDIR}/postinit" || \
+                            error_notify "Error: A problem has occurred while executing postinit file."
                         echo "Done!"
                 fi
-                sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+                sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
         fi
 }
 
@@ -518,22 +518,22 @@ gui_start()
                         # Try to restore default configuration.
                         runtime_config
                         # Set default config.
-                        sysrc -f ${CWDIR}${WIREGUARDCONF} GUI_ENABLE=YES INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+                        sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
                 fi
-                GUI_STATUS=$(sysrc -f ${CWDIR}${WIREGUARDCONF} -qn GUI_ENABLE)
+                GUI_STATUS=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -qn GUI_ENABLE)
                 if [ "${GUI_STATUS}" = "YES" ]; then
                         # Store the installation path and link conf.
-                        if ! sysrc -f ${CWDIR}${WIREGUARDCONF} -n INSTALL_DIR | grep -q "${CWDIR}"; then
-                                sysrc -f ${CWDIR}${WIREGUARDCONF} INSTALL_DIR=${CWDIR} >/dev/null 2>&1
+                        if ! sysrc -f "${CWDIR}${WIREGUARDCONF}" -n INSTALL_DIR | grep -q "${CWDIR}"; then
+                                sysrc -f "${CWDIR}${WIREGUARDCONF}" INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
                         fi
-                        mkdir -p ${WIREGUARDCONFLINK}
-                        ln -fhs ${CWDIR}/conf ${WIREGUARDCONFLINK}/conf
+                        mkdir -p "${WIREGUARDCONFLINK}"
+                        ln -fhs "${CWDIR}/conf" "${WIREGUARDCONFLINK}/conf"
                         # Link the gui files.
                         if [ ! -d "${WWWPATH}/ext" ]; then
-                                mkdir -p ${WWWPATH}/ext
+                                mkdir -p "${WWWPATH}/ext"
                         fi
-                        ln -fhs ${CWDIR}/gui/ext/wireguard-gui ${WWWPATH}/ext/ || error_notify "Error: A problem has occurred while copying extension gui files."
-                        ln -fhs ${CWDIR}/gui/wireguard-gui.php ${WWWPATH}/ || error_notify "Error: A problem has occurred while linking extension gui files."
+                        ln -fhs "${CWDIR}/gui/ext/wireguard-gui" "${WWWPATH}/ext/" || error_notify "Error: A problem has occurred while copying extension gui files."
+                        ln -fhs "${CWDIR}/gui/wireguard-gui.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
 
                 fi
         fi
