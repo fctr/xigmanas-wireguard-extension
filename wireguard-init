@@ -593,8 +593,10 @@ pkg_upgrade()
 
                         # Set product version variables.
                         # We have to use the manifest file for version comparison for Embedded platform.
-                        NOWPKG=$(grep '"version":"' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | cut -d',' -f3 | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
-                        NEWPKG=$(pkg search "${PKG}" | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        NOWPKG=$(awk -F'\"version\":' '{print $2}' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | awk -F\" '{print $2}' | tr -cd '[:digit:]')
+                        NEWPKG=$(pkg search -Q version "${PKG}" | awk 'NR==2' | cut -d: -f 2 | tr -cd '[:digit:]')
+                        # NOWPKG=$(grep '"version":"' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | cut -d',' -f3 | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        # NEWPKG=$(pkg search "${PKG}" | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Extract new fetched packages for Embedded platform on new version.
                         if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
