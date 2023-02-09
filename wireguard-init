@@ -551,7 +551,6 @@ gui_enable()
                 fi
                 ln -fhs "${CWDIR}/gui/ext/wireguard-gui" "${WWWPATH}/ext/" || error_notify "Error: A problem has occurred while copying extension gui files."
                 ln -fhs "${CWDIR}/gui/wireguard-gui.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
-                exit 0
         else
                 error_notify "Error: Extension gui files not found."
         fi
@@ -566,7 +565,6 @@ gui_disable()
                 rm -f "${LOCALSHAREPATH}/locale-wireguard"
                 rm -rf "${WIREGUARDCONFLINK}"
                 sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=NO >/dev/null 2>&1 || error_notify "Error: A problem while removing extension gui files."
-                exit 0
         else
                 error_notify "Error: Extension gui files not found."
         fi
