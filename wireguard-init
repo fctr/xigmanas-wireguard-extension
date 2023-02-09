@@ -618,14 +618,14 @@ pkg_upgrade()
                         echo "Looking for new ${PKG} package..."
 
                         # Set current version.
-                        PKG=$(pkg info | grep ${APPNAME} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        PKG=$(pkg info | grep ${APPNAME} | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Issue wireguard upgrade command in Full platforms.
                         pkg upgrade -y "${PKG}" || \
                         error_notify "Error: A problem has occurred while upgrading ${APPNAME}."
 
                         # Set new version.
-                        NEWPKG=$(pkg info | grep ${PKG} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        NEWPKG=$(pkg info | grep "${PKG}" | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
                         if [ "${NEWPKG}" -gt "${PKG}" ]; then
                                 echo "New ${PKG} package found and upgraded!"
                         else
