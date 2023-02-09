@@ -666,7 +666,7 @@ remove_addon()
         # Confirm for addon removal.
         while :
                 do
-                        read -p "Do you wish to proceed with the ${FULLAPPNAME} removal? [y/N]:" yn
+                        read -r "Do you wish to proceed with the ${FULLAPPNAME} removal? [y/N]:" yn
                         case ${yn} in
                         [Yy]) break;;
                         [Nn]) exit 0;;
