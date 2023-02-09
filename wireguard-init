@@ -601,7 +601,7 @@ pkg_upgrade()
                         # Extract new fetched packages for Embedded platform on new version.
                         if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
                                 echo "New ${PKG} package found, performing upgrade..."
-                                NEWPKG_VER=$(pkg search "${PKG}"" | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
+                                NEWPKG_VER=$(pkg search ${PKG} | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
                                 pkg fetch -y -o "${CWDIR}/download" "${PKG}-${NEWPKG_VER}" || \
                                     error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
                                 echo "Extracting ${PKG}-${NEWPKG_VER}..."
