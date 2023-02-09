@@ -179,7 +179,7 @@ extension_upgrade()
 
                         # Logging the update event.
                         UPDATEVERSION=$(cat "${CWDIR}/version")
-                        echo "${DATE}: extension upgraded to ${UPDATEVERSION}" >> ${EXTLOGFILE}
+                        echo "${DATE}: extension upgraded to ${UPDATEVERSION}" >> "${EXTLOGFILE}"
                         echo "Extension package upgrade completed!"
                 else
                         echo "Extension package is on the latest version!"
@@ -267,107 +267,107 @@ sys_symlinkdir()
         # Main wireguard symlinks.
         # Install Kernel Modules
         if [ -d "${INSTALLPATH}/boot" ]; then
-                cd ${INSTALLPATH}/boot
+                cd "${INSTALLPATH}/boot"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/boot/${file} /boot/${file}
+                                ln -fhs "${INSTALLPATH}/boot/${file}" "/boot/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/boot/modules" ]; then
-                cd ${INSTALLPATH}/boot/modules
+                cd "${INSTALLPATH}/boot/modules"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/boot/modules/${file} /boot/modules/${file}
+                                ln -fhs "${INSTALLPATH}/boot/modules/${file}" "/boot/modules/${file}"
                 done
                 for file in *.ko
                         do
-                                kldload -n /boot/modules/${file}
+                                kldload -n "/boot/modules/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/bin
+                cd "${INSTALLPATH}/${USRLOCAL}/bin"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/bin/${file} ${USRLOCAL}/bin/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/bin/${file}" "${USRLOCAL}/bin/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/etc" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/etc
+                cd "${INSTALLPATH}/${USRLOCAL}/etc"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/etc/${file} ${USRLOCAL}/etc/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/etc/${file}" "${USRLOCAL}/etc/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}
+                cd "${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}/${file} ${USRLOCAL}/etc/${APPNAME}/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/etc/${APPNAME}/${file}" "${USRLOCAL}/etc/${APPNAME}/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/include" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/include
+                cd "${INSTALLPATH}/${USRLOCAL}/include"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/include/${file} ${USRLOCAL}/include/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/include/${file}" "${USRLOCAL}/include/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/lib" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/lib
+                cd "${INSTALLPATH}/${USRLOCAL}/lib"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/lib/${file} ${USRLOCAL}/lib/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/lib/${file}" "${USRLOCAL}/lib/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig
+                cd "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig/${file} ${USRLOCAL}/libdata/pkgconfig/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig/${file}" "${USRLOCAL}/libdata/pkgconfig/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/libexec" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/libexec
+                cd "${INSTALLPATH}/${USRLOCAL}/libexec"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/libexec/${file} ${USRLOCAL}/libexec/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/libexec/${file}" "${USRLOCAL}/libexec/${file}"
                 done
         fi
 
         # Required symlinks for wireguard.
         if [ -d "${INSTALLPATH}/${USRLOCAL}/share/doc" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/share/doc
+                cd "${INSTALLPATH}/${USRLOCAL}/share/doc"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/doc/${file} ${USRLOCAL}/share/doc/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/share/doc/${file}" "${USRLOCAL}/share/doc/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/man/man1" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/man/man1
+                cd "${INSTALLPATH}/${USRLOCAL}/man/man1"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/man/man1/${file} ${USRLOCAL}/man/man1/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/man/man1/${file}" "${USRLOCAL}/man/man1/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/share/examples" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/share/examples
+                cd "${INSTALLPATH}/${USRLOCAL}/share/examples"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/examples/${file} ${USRLOCAL}/share/examples/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/share/examples/${file}" "${USRLOCAL}/share/examples/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/share/licenses" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/share/licenses
+                cd "${INSTALLPATH}/${USRLOCAL}/share/licenses"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/licenses/${file} ${USRLOCAL}/share/licenses/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/share/licenses/${file}" "${USRLOCAL}/share/licenses/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/share/man/man1" ]; then
-                cd ${INSTALLPATH}/${USRLOCAL}/share/man/man1
+                cd "${INSTALLPATH}/${USRLOCAL}/share/man/man1"
                 for file in *
                         do
-                                ln -fhs ${INSTALLPATH}/${USRLOCAL}/share/man/man1/${file} ${USRLOCAL}/share/man/man1/${file}
+                                ln -fhs "${INSTALLPATH}/${USRLOCAL}/share/man/man1/${file}" "${USRLOCAL}/share/man/man1/${file}"
                 done
         fi
 }
