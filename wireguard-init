@@ -690,7 +690,7 @@ remove_addon()
                 fi
         elif [ "${PRDPLATFORM}" = "x64-full" ]; then
                 if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
-                        pkg delete -y ${PKG_BUNDLE}
+                        pkg delete -y "${PKG_BUNDLE}"
                 fi
         fi
 
@@ -699,7 +699,7 @@ remove_addon()
         FILES="conf download gui locale-wireguard log wireguard-addon README.md postinit CHANGELOG version wireguard-init update"
         for file in ${FILES}; do
                 if [ -f "${CWDIR}/${file}" ] || [ -d "${CWDIR}/${file}" ]; then
-                        rm -rf "${CWDIR}/${file}"
+                        rm -rf "${CWDIR:?}/${file}"
                 fi
         done
 
@@ -724,11 +724,11 @@ get_versions()
         # Display product versions.
         for PKG in ${PKG_BUNDLE}; do
 #                echo -e "\n$PKG version:" && pkg version -n $PKG -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
-                echo "\n$PKG version:" && pkg version -n "$PKG" -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
+                printf "\n%s version:" "$PKG" && pkg version -n "$PKG" -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
         done
 
 #        echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
-        echo "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
+        printf "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
         exit 0
 }
 
