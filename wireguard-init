@@ -374,6 +374,7 @@ sys_symlinkdir()
 
 rem_symlinkdir()
 {
+        [ -z "$USRLOCAL" ] && return; 
         # Remove main wireguard symlinks.
         if [ -d "${INSTALLPATH}/${USRLOCAL}/bin" ]; then
                 cd "${INSTALLPATH}/${USRLOCAL}/bin" || return
@@ -386,28 +387,28 @@ rem_symlinkdir()
                 cd "${INSTALLPATH}/${USRLOCAL}/include" || return
                 for file in *
                         do
-                                rm -rf ${USRLOCAL}/include/${file}
+                                rm -rf "${USRLOCAL}/include/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/lib" ]; then
                 cd "${INSTALLPATH}/${USRLOCAL}/lib" || return
                 for file in *
                         do
-                                rm -rf ${USRLOCAL}/lib/${file}
+                                rm -rf "${USRLOCAL}/lib/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig" ]; then
                 cd "${INSTALLPATH}/${USRLOCAL}/libdata/pkgconfig" || return
                 for file in *
                         do
-                                rm -rf ${USRLOCAL}/libdata/pkgconfig/${file}
+                                rm -rf "${USRLOCAL}/libdata/pkgconfig/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/libexec" ]; then
                 cd "${INSTALLPATH}/${USRLOCAL}/libexec" || return
                 for file in *
                         do
-                                rm -rf ${USRLOCAL}/libexec/${file}
+                                rm -rf "${USRLOCAL}/libexec/${file}"
                 done
         fi
 
@@ -416,7 +417,7 @@ rem_symlinkdir()
                 cd "${INSTALLPATH}/${USRLOCAL}/share/doc" || return
                 for file in *
                         do
-                                rm -rf ${USRLOCAL}/share/doc/${file}
+                                rm -rf "${USRLOCAL}/share/doc/${file}"
                 done
         fi
         if [ -d "${INSTALLPATH}/${USRLOCAL}/man/man1" ]; then
