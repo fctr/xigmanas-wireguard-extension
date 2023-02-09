@@ -595,19 +595,19 @@ pkg_upgrade()
 
                         # Set product version variables.
                         # We have to use the manifest file for version comparison for Embedded platform.
-                        NOWPKG=$(grep '"version":"' ${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST | cut -d',' -f3 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
-                        NEWPKG=$(pkg search ${PKG} | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        NOWPKG=$(grep '"version":"' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | cut -d',' -f3 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
+                        NEWPKG=$(pkg search "${PKG}"" | awk 'NR==1' | egrep -o "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Extract new fetched packages for Embedded platform on new version.
                         if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
                                 echo "New ${PKG} package found, performing upgrade..."
-                                NEWPKG_VER=$(pkg search ${PKG} | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
-                                pkg fetch -y -o ${CWDIR}/download ${PKG}-${NEWPKG_VER} || \
-                                error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
+                                NEWPKG_VER=$(pkg search "${PKG}"" | awk 'NR==1' | cut -d'-' -f2 | cut -d' ' -f1)
+                                pkg fetch -y -o "${CWDIR}/download" "${PKG}-${NEWPKG_VER}" || \
+                                    error_notify "Error: A problem has occurred while fetching/locating ${pkg}."
                                 echo "Extracting ${PKG}-${NEWPKG_VER}..."
-                                tar -Jxf ${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.[tp][xk][zg] -C ${CWDIR}/${FULLAPPNAME}/ || \
-                                error_notify "Error: A problem has occurred while extractig files."
-                                mv ${CWDIR}/${FULLAPPNAME}/+* ${CWDIR}/${FULLAPPNAME}/${PKG}/
+                                tar -Jxf "${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.[tp][xk][zg]" -C "${CWDIR}/${FULLAPPNAME}/" || \
+                                    error_notify "Error: A problem has occurred while extractig files."
+                                mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}/"
                         else
                                 echo "No new ${PKG} package available!"
                         fi
@@ -643,22 +643,22 @@ reset_install()
         # Reset the extension environment.
         echo "Removing extension files..."
         if [ -d "${CWDIR}/conf" ]; then
-                rm -rf ${CWDIR}/conf
+                rm -rf "${CWDIR}/conf"
         fi
         if [ -d "${CWDIR}/log" ]; then
-                rm -rf ${CWDIR}/log
+                rm -rf "${CWDIR}/log"
         fi
         if [ -d "${CWDIR}/locale-wireguard" ]; then
-                rm -rf ${CWDIR}/locale-wireguard
+                rm -rf "${CWDIR}/locale-wireguard"
         fi
         if [ -d "${CWDIR}/${FULLAPPNAME}" ]; then
-                rm -rf ${CWDIR}/${FULLAPPNAME}
+                rm -rf "${CWDIR}/${FULLAPPNAME}""
         fi
         if [ -d "${CWDIR}/download" ]; then
-                rm -rf ${CWDIR}/download
+                rm -rf "${CWDIR}/download"
         fi
         if [ -f "${CWDIR}/version" ]; then
-                rm -f ${CWDIR}/version
+                rm -f "${CWDIR}/version"
         fi
         runtime_config
 }
@@ -677,10 +677,10 @@ remove_addon()
         echo "Proceeding..."
 
         if [ -d "${WWWPATH}/wireguard-gui.php" ]; then
-                rm -f ${WWWPATH}/wireguard-gui.php
-                rm -rf ${WWWPATH}/ext/wireguard-gui
-                rm -f ${LOCALSHAREPATH}/locale-wireguard
-                rm -rf ${WIREGUARDCONFLINK}
+                rm -f "${WWWPATH}/wireguard-gui.php"
+                rm -rf "${WWWPATH}/ext/wireguard-gui"
+                rm -f "${LOCALSHAREPATH}/locale-wireguard"
+                rm -rf "${WIREGUARDCONFLINK}"
         fi
 
         # Check for working platform.
@@ -699,12 +699,12 @@ remove_addon()
         FILES="conf download gui locale-wireguard log wireguard-addon README.md postinit CHANGELOG version wireguard-init update"
         for file in ${FILES}; do
                 if [ -f "${CWDIR}/${file}" ] || [ -d "${CWDIR}/${file}" ]; then
-                        rm -rf ${CWDIR}/${file}
+                        rm -rf "${CWDIR}/${file}"
                 fi
         done
 
         if [ ! -f "${USRLOCAL}/sbin/${SCRIPTNAME}" ]; then
-                rm ${USRLOCAL}/sbin/${SCRIPTNAME}
+                rm "${USRLOCAL:?}/sbin/${SCRIPTNAME}"
         fi
 
         echo "Done!"
@@ -716,7 +716,7 @@ get_versions()
 {
         # Get wireguard-addon extension version.
         if [ -f "${CWDIR}/version" ]; then
-                APPVERSION=$(cat ${CWDIR}/version)
+                APPVERSION=$(cat "${CWDIR}/version")
         else
                 APPVERSION="version file not found!"
         fi
