@@ -270,6 +270,8 @@ sys_linkfiles()
                 fi
             done
     fi
+    unset SOURCEPATH
+    unset DESTPATH
 }
 
 sys_symlinkdir()
