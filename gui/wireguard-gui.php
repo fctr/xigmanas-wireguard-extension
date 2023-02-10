@@ -151,7 +151,6 @@ if ($_POST) {
           if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
           fwrite($myfile, "\n");
           fclose($myfile);
-          exec("ln -s {$rootfolder}/wireguard-addon/usr/local/etc/{$interfacename}.conf {$conffolder}/{$interfacename}.conf");
           exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
           if ($_POST['wg_boot'] === "yes") {
             if (!startedonboot($interfacename)) {
