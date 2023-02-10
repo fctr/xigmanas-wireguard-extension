@@ -254,8 +254,8 @@ platform_check()
 
 sys_linkfiles()
 {
-    SOURCEPATH=$1
-    DESTPATH=$2
+    local SOURCEPATH=$1
+    local DESTPATH=$2
     if [ -d "${SOURCEPATH}" ]; then
         cd "${SOURCEPATH}" || return
         mkdir -p "${DESTPATH}"
