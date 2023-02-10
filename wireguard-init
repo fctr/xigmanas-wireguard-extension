@@ -160,7 +160,7 @@ ext_initial_download()
                 error_notify "Error: A problem has occurred while fetching extension package."
                 tar -xf "${CWDIR}/update/${BRANCH}.zip" --exclude='.git*' --strip-components 1 -C "${CWDIR}/update"
                 chmod +x "${CWDIR}/update/${SCRIPTNAME}"
-                cp -rf "${CWDIR}/update/*" "${CWDIR}/"
+                cp -Rf "${CWDIR}/update/" "${CWDIR}/"
                 rm -r "${CWDIR}/update"
                 rm -f "${CWDIR}/${BRANCH}.zip"
                 echo "Done"
