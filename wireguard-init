@@ -140,11 +140,11 @@ wireguard_pkg_extract()
                 # Extract fetched package for Embedded platform.
                 if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
                         echo "Extracting ${PKG}..."
-                        tar -Jxf "${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]" -C "${CWDIR}/${FULLAPPNAME}/" || \
-                        error_notify "Error: A problem has occurred while extracting ${PKG} files."
+                        tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg] -C "${CWDIR}/${FULLAPPNAME}/" || \
+                            error_notify "Error: A problem has occurred while extracting ${PKG} files."
                         mkdir -p "${CWDIR}/${FULLAPPNAME}/${PKG}"
                         mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}"
-                        rm "${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]"
+                        rm ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]
                         echo "Done"
                 fi
         done
