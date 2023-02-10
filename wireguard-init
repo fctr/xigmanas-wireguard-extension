@@ -258,6 +258,9 @@ sys_linkfiles()
     DESTPATH=$2
     if [ -d "${SOURCEPATH}" ]; then
         cd "${SOURCEPATH}" || return
+        if [ ! -d "${DESTPATH}" ]; then
+            mkdir "${DESTPATH}"
+        fi
         for file in *
             do
                 if [ -d "${SOURCEPATH}/${file}" ]; then
