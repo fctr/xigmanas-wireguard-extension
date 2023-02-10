@@ -140,11 +140,11 @@ wireguard_pkg_extract()
                 # Extract fetched package for Embedded platform.
                 if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
                         echo "Extracting ${PKG}..."
-                        tar -Jxf ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg] -C "${CWDIR}/${FULLAPPNAME}/" || \
+                        tar -Jxf "${CWDIR}/download/All/${PKG}"-[0-9]*.[tp][xk][zg] -C "${CWDIR}/${FULLAPPNAME}/" || \
                             error_notify "Error: A problem has occurred while extracting ${PKG} files."
                         mkdir -p "${CWDIR}/${FULLAPPNAME}/${PKG}"
-                        mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}"
-                        rm ${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]
+                        mv "${CWDIR}/${FULLAPPNAME}"/+* "${CWDIR}/${FULLAPPNAME}/${PKG}"
+                        rm "${CWDIR}/download/All/${PKG}"-[0-9]*.[tp][xk][zg]
                         echo "Done"
                 fi
         done
@@ -187,7 +187,7 @@ extension_upgrade()
                         tar -xf "${CWDIR}/update/${BRANCH}.zip" --exclude='.git*' --strip-components 1 -C "${CWDIR}/update"
                         chmod +x "${CWDIR}/update/${SCRIPTNAME}"
                         rm -f "${CWDIR}/update/${BRANCH}.zip"
-                        cp -rf "${CWDIR}/update/*" "${CWDIR}/"
+                        cp -rf "${CWDIR}/update"/* "${CWDIR}/"
                         rm -r "${CWDIR}/update"
                         rm -f "${CWDIR}/${BRANCH}.zip"
 
@@ -619,9 +619,9 @@ pkg_upgrade()
                                 pkg fetch -y -o "${CWDIR}/download" "${PKG}-${NEWPKG_VER}" || \
                                     error_notify "Error: A problem has occurred while fetching/locating ${PKG}."
                                 echo "Extracting ${PKG}-${NEWPKG_VER}..."
-                                tar -Jxf "${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}.[tp][xk][zg]" -C "${CWDIR}/${FULLAPPNAME}/" || \
+                                tar -Jxf "${CWDIR}/download/All/${APPNAME}-${NEWPKG_VER}".[tp][xk][zg] -C "${CWDIR}/${FULLAPPNAME}/" || \
                                     error_notify "Error: A problem has occurred while extracting files."
-                                mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}/"
+                                mv "${CWDIR}/${FULLAPPNAME}"/+* "${CWDIR}/${FULLAPPNAME}/${PKG}/"
                         else
                                 echo "No new ${PKG} package available"
                         fi
