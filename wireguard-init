@@ -128,10 +128,10 @@ wireguard_initial_download()
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
         fi
-        if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
+        #if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
                 # Must create fake conf file
-                touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
-        fi
+        #        touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
+        #fi
 }
 
 wireguard_pkg_extract()
