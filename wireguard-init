@@ -113,7 +113,7 @@ wireguard_native_download()
                 # Check if wireguard already exist.
                 if [ ! -f "${APPPATH}/${APPBIN}" ]; then
                         update_freebsdconf
-                        pkg install -y "${PKG_BUNDLE}" || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
+                        pkg install -y ${PKG_BUNDLE} || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 fi
         fi
 }
@@ -124,7 +124,7 @@ wireguard_initial_download()
         if [ ! -f "${CWDIR}/${FULLAPPNAME}${APPPATH}/${APPBIN}" ]; then
                 # Fetch wireguard packages.
                 update_freebsdconf
-                pkg fetch -y -o "${CWDIR}/download" "${PKG_BUNDLE}" || \
+                pkg fetch -y -o "${CWDIR}/download" ${PKG_BUNDLE} || \
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
         fi
@@ -704,7 +704,7 @@ remove_addon()
                 fi
         elif [ "${PRDPLATFORM}" = "x64-full" ]; then
                 if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
-                        pkg delete -y "${PKG_BUNDLE}"
+                        pkg delete -y ${PKG_BUNDLE}
                 fi
         fi
 
