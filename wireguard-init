@@ -110,8 +110,8 @@ wireguard_initial_download()
                 # Fetch wireguard packages.
                 update_freebsdconf
                 pkg fetch -y -o "${CWDIR}/download" ${PKG_BUNDLE} || \
-                error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
-                wireguard_pkg_extract
+                    error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
+                # wireguard_pkg_extract
         fi
 }
 
