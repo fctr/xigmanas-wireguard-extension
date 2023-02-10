@@ -260,8 +260,6 @@ sys_linkfiles()
         cd "${SOURCEPATH}" || return
         for file in *
             do
-            done
-    fi
                 if [ -d "${SOURCEPATH}/${file}" ]; then
                   # It's a folder, so check to see if it exists
                   if [ -d "${DESTPATH}/${file}" ]; then
@@ -275,9 +273,8 @@ sys_linkfiles()
                   # It's just a file, so symlink it
                   ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
                 fi
-
-
-
+            done
+    fi
 }
 
 sys_symlinkdir()
@@ -285,35 +282,13 @@ sys_symlinkdir()
         # Check and create/relink required symlinks/dirs for wireguard.
         # This environment will be checked each time the script is started for consistency.
 
-        # Required directories for wireguard.
-        #if [ ! -d "${USRLOCAL}/share/doc" ]; then
-        #        mkdir -p ${USRLOCAL}/share/doc
-        #fi
-        #if [ ! -d "${USRLOCAL}/share/examples" ]; then
-        #        mkdir -p ${USRLOCAL}/share/examples
-        #fi
-        #if [ ! -d "${USRLOCAL}/man/man1" ]; then
-        #        mkdir -p ${USRLOCAL}/man/man1
-        #fi
-        #if [ ! -d "${USRLOCAL}/share/licenses" ]; then
-        #        mkdir -p ${USRLOCAL}/share/licenses
-        #fi
-        #if [ ! -d "${USRLOCAL}/share/man/man1" ]; then
-        #        mkdir -p ${USRLOCAL}/share/man/man1
-        #fi
-        #if [ ! -d "${USRLOCAL}/libdata/pkgconfig" ]; then
-        #        mkdir -p ${USRLOCAL}/libdata/pkgconfig
-        #fi
-
-
-        # Main wireguard symlinks.
         # Install Kernel Modules
         if [ -d "${INSTALLPATH}/boot/modules" ]; then
-                cd "${INSTALLPATH}/boot/modules" || return
-                for file in *.ko
-                        do
-                                kldload -n "${INSTALLPATH}/boot/modules/${file}"
-                done
+          cd "${INSTALLPATH}/boot/modules" || return
+          for file in *.ko
+            do
+                kldload -n "${INSTALLPATH}/boot/modules/${file}"
+            done
         fi
         sys_linkfiles "${INSTALLPATH}${USRLOCAL}/bin" "${USRLOCAL}/bin"
         sys_linkfiles "${INSTALLPATH}${USRLOCAL}/etc" "${USRLOCAL}/etc"
