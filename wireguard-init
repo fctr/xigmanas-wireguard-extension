@@ -32,21 +32,32 @@ PATH=${PATH}:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 # Determine full working directory.
 CWDIR=$(dirname "$(realpath "$0")")
+# CWDIR=/mnt/nvme/extensions/wireguard
 
 # Global variables.
 PLATFORM=$(uname -m)
+# PLATFORM=amd64
 PRODUCT=$(uname -i)
+# PRODUCT=XIGMANAS-x64
 PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.')
+# PRDVERSION=131
 PRDPLATFORM=$(cat /etc/platform)
+# PRDPLATFORM=x64-embedded
 SCRIPTNAME=$(basename "$0")
+# SCRIPTNAME=wireguard-init
 CONFIG="/cf/conf/config.xml"
+# CONFIG=/cf/conf/config.xml
 APPNAME="wireguard"
 EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
+# EXTLOGFILE=/mnt/nvme/extensions/wireguard/log/wireguard_ext.log
 #WIREGUARDLOGFILE=${EXTLOGFILE}
 FULLAPPNAME="${APPNAME}-addon"
+# FULLAPPNAME=wireguard-addon
 PKGCONF="/etc/pkg/FreeBSD.conf"
+# PKGCONF=/etc/pkg/FreeBSD.conf
 USRLOCAL="/usr/local"
 APPPATH="${USRLOCAL}/bin"
+# APPPATH=/usr/local/bin
 APPMASTER="wireguard"
 APPBIN="wg"
 PKG_BUNDLE="bash gettext-runtime indexinfo readline wireguard wireguard-kmod wireguard-tools"
@@ -54,9 +65,12 @@ WWWPATH="/usr/local/www"
 WIREGUARDCONF="/conf/wireguard_config"
 WIREGUARDCONFLINK="/var/etc/wireguardconf"
 INSTALLPATH="${CWDIR}/${FULLAPPNAME}"
+# INSTALLPATH=/mnt/nvme/extensions/wireguard/wireguard-addon
 BRANCH="master"
 GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
+# GITURL=https://github.com/fctr/xigmanas-wireguard-extension/archive/master.zip
 VERFILE="https://raw.githubusercontent.com/fctr/xigmanas-${APPNAME}-extension/${BRANCH}/version"
+# VERFILE=https://raw.githubusercontent.com/fctr/xigmanas-wireguard-extension/master/version
 
 error_notify()
 {
@@ -107,16 +121,16 @@ wireguard_native_download()
 wireguard_initial_download()
 {
         # Check if wireguard already exist.
-        if [ ! -f "${CWDIR}/${FULLAPPNAME}/${APPPATH}/${APPBIN}" ]; then
+        if [ ! -f "${CWDIR}/${FULLAPPNAME}${APPPATH}/${APPBIN}" ]; then
                 # Fetch wireguard packages.
                 update_freebsdconf
                 pkg fetch -y -o "${CWDIR}/download" "${PKG_BUNDLE}" || \
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
-                if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
-                        # Must create fake conf file
-                        touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
-                fi
+                //if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
+                //        # Must create fake conf file
+                //        touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
+                //fi
         fi
 }
 
@@ -131,7 +145,7 @@ wireguard_pkg_extract()
                         mkdir -p "${CWDIR}/${FULLAPPNAME}/${PKG}"
                         mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}"
                         rm "${CWDIR}/download/All/${PKG}-[0-9]*.[tp][xk][zg]"
-                        echo "Done!"
+                        echo "Done"
                 fi
         done
 }
@@ -149,7 +163,7 @@ ext_initial_download()
                 cp -rf "${CWDIR}/update/*" "${CWDIR}/"
                 rm -r "${CWDIR}/update"
                 rm -f "${CWDIR}/${BRANCH}.zip"
-                echo "Done!"
+                echo "Done"
         fi
 }
 
@@ -157,7 +171,7 @@ extension_upgrade()
 {
         # Perform an online extension upgrade.
         DATE=$(date +"%a %b %d %T %Y")
-        echo "Looking for new extension package!"
+        echo "Looking for new extension package..."
         mkdir -p "${CWDIR}/update"
         fetch -ao "${CWDIR}/update" --no-verify-peer --timeout=30 "${VERFILE}" || \
         error_notify "Error: A problem has occurred while fetching version file."
@@ -180,9 +194,9 @@ extension_upgrade()
                         # Logging the update event.
                         UPDATEVERSION=$(cat "${CWDIR}/version")
                         echo "${DATE}: extension upgraded to ${UPDATEVERSION}" >> "${EXTLOGFILE}"
-                        echo "Extension package upgrade completed!"
+                        echo "Extension package upgrade completed"
                 else
-                        echo "Extension package is on the latest version!"
+                        echo "Extension package is on the latest version"
                         rm -r "${CWDIR}/update"
                 fi
         fi
@@ -503,7 +517,7 @@ EOF
                         echo "Creating postinit command..."
                         php-cgi -f "${CWDIR}/postinit" && (rm "${CWDIR}/postinit" || \
                             error_notify "Error: A problem has occurred while executing postinit file.")
-                        echo "Done!"
+                        echo "Done"
                 fi
                 sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
         fi
@@ -609,7 +623,7 @@ pkg_upgrade()
                                     error_notify "Error: A problem has occurred while extracting files."
                                 mv "${CWDIR}/${FULLAPPNAME}/+*" "${CWDIR}/${FULLAPPNAME}/${PKG}/"
                         else
-                                echo "No new ${PKG} package available!"
+                                echo "No new ${PKG} package available"
                         fi
                 done
 
@@ -627,9 +641,9 @@ pkg_upgrade()
                         # Set new version.
                         NEWPKG=$(pkg info | grep "${PKG}" | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
                         if [ "${NEWPKG}" -gt "${PKG}" ]; then
-                                echo "New ${PKG} package found and upgraded!"
+                                echo "New ${PKG} package found and upgraded"
                         else
-                                echo "No new ${PKG} package available!"
+                                echo "No new ${PKG} package available"
                         fi
                 done
         fi
@@ -707,7 +721,7 @@ remove_addon()
                 rm "${USRLOCAL:?}/sbin/${SCRIPTNAME}"
         fi
 
-        echo "Done!"
+        echo "Done"
         echo "Please manually remove the wireguard Extension Command Script from the WebGUI."
         exit 0
 }
@@ -718,7 +732,7 @@ get_versions()
         if [ -f "${CWDIR}/version" ]; then
                 APPVERSION=$(cat "${CWDIR}/version")
         else
-                APPVERSION="version file not found!"
+                APPVERSION="version file not found"
         fi
 
         # Display product versions.
@@ -736,7 +750,7 @@ exec_status()
 {
         # Log on startup success, else logging with faults.
         if [ $? -eq 0 ]; then
-                MSG="script has been started successfully!"
+                MSG="script has been started successfully"
                 logger -t "${SCRIPTNAME}" "${MSG}"
         else
                 MSG="script started with faults"
@@ -748,11 +762,11 @@ wireguard_init()
 {
         # Check for system compatibility.
         if [ ! "${PLATFORM}" = "amd64" ]; then
-                echo "Unsupported platform!"; exit 1
+                echo "Unsupported platform"; exit 1
         fi
         # Check for product compatibility.
         if [ ! "${PRDVERSION}" -ge "110" ]; then
-                echo "Unsupported version!"; exit 1
+                echo "Unsupported version"; exit 1
         fi
 
         echo "Initializing ${APPNAME}..."
@@ -777,13 +791,13 @@ while getopts ":ouxrvgth" option; do
                 echo "        -x  Reset ${FULLAPPNAME}."
                 echo "        -r  Remove ${FULLAPPNAME}."
                 echo "        -h  Display this help message."; exit 0;;
-                [o]) OBI_INSTALL="ON";; # To prevent nested PHP-CGI call for installation with OBI.
+                [o]) OBI_INSTALL="ON";; # Prevent nested PHP-CGI call for installation with OBI.
                 [u]) pkg_upgrade;;
                 [x]) reset_install;;
                 [r]) remove_addon;;
                 [v]) get_versions;;
-                [g]) gui_enable; exit 0 ;; # For enable the addon gui.
-                [t]) gui_disable; exit 0 ;; # For disable the addon gui.
+                [g]) gui_enable; exit 0 ;; # Enable the addon gui.
+                [t]) gui_disable; exit 0 ;; # Disable the addon gui.
                 [?]) echo "Invalid option, -h for usage."; exit 1;;
         esac
 done
