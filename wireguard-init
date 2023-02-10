@@ -234,7 +234,7 @@ platform_check()
 
 sys_installpkgs()
 {
-    local MAIN_FILE=$(pkg search -q ${MAIN_PKG})
+    local MAIN_FILE=$(pkg search -q ${MAIN_PKG} | awk "NR==1")
     pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg"
     #if [ !-f ]
 }
