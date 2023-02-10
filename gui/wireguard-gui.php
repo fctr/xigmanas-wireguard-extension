@@ -138,7 +138,7 @@ if ($_POST) {
         if(!validateu16($_POST['keepalive'])) { $editing = (bool)true; $input_errors[] = gtext('Persistent keepalive is incorrect.'); }
 		$return_val = $editing?1:0;
         if (!$editing) {
-          $myfile = fopen("{$rootfolder}/wireguard-addon/usr/local/etc/{$interfacename}.conf", "w") or die("Unable to write to {$rootfolder}/wireguard-addon/usr/local/etc/{$interfacename}.conf");
+          $myfile = fopen("{$rootfolder}/conf/{$interfacename}.conf", "w") or die("Unable to write to {$rootfolder}/conf/{$interfacename}.conf");
           fwrite($myfile, "[Interface]");
           fwrite($myfile, "\nPrivateKey = " . $_POST['int_prvkey']);
           fwrite($myfile, "\nAddress = " . $_POST['int_address']);
