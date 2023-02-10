@@ -252,138 +252,80 @@ platform_check()
         fi
 }
 
+sys_linkfiles()
+{
+    SOURCEPATH=$1
+    DESTPATH=$2
+    if [ -d "${SOURCEPATH}" ]; then
+        cd "${SOURCEPATH}" || return
+        for file in *
+            do
+            done
+    fi
+                if [ -d "${SOURCEPATH}/${file}" ]; then
+                  # It's a folder, so check to see if it exists
+                  if [ -d "${DESTPATH}/${file}" ]; then
+                      # It exists already, so just link the files inside it
+                      sys_linkfiles "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
+                  else
+                      # Not there, so link to it.
+                      ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
+                  fi
+                else
+                  # It's just a file, so symlink it
+                  ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
+                fi
+
+
+
+}
+
 sys_symlinkdir()
 {
         # Check and create/relink required symlinks/dirs for wireguard.
         # This environment will be checked each time the script is started for consistency.
 
         # Required directories for wireguard.
-        if [ ! -d "${USRLOCAL}/share/doc" ]; then
-                mkdir -p ${USRLOCAL}/share/doc
-        fi
-        if [ ! -d "${USRLOCAL}/share/examples" ]; then
-                mkdir -p ${USRLOCAL}/share/examples
-        fi
-        if [ ! -d "${USRLOCAL}/man/man1" ]; then
-                mkdir -p ${USRLOCAL}/man/man1
-        fi
-        if [ ! -d "${USRLOCAL}/share/licenses" ]; then
-                mkdir -p ${USRLOCAL}/share/licenses
-        fi
-        if [ ! -d "${USRLOCAL}/share/man/man1" ]; then
-                mkdir -p ${USRLOCAL}/share/man/man1
-        fi
-        if [ ! -d "${USRLOCAL}/libdata/pkgconfig" ]; then
-                mkdir -p ${USRLOCAL}/libdata/pkgconfig
-        fi
+        #if [ ! -d "${USRLOCAL}/share/doc" ]; then
+        #        mkdir -p ${USRLOCAL}/share/doc
+        #fi
+        #if [ ! -d "${USRLOCAL}/share/examples" ]; then
+        #        mkdir -p ${USRLOCAL}/share/examples
+        #fi
+        #if [ ! -d "${USRLOCAL}/man/man1" ]; then
+        #        mkdir -p ${USRLOCAL}/man/man1
+        #fi
+        #if [ ! -d "${USRLOCAL}/share/licenses" ]; then
+        #        mkdir -p ${USRLOCAL}/share/licenses
+        #fi
+        #if [ ! -d "${USRLOCAL}/share/man/man1" ]; then
+        #        mkdir -p ${USRLOCAL}/share/man/man1
+        #fi
+        #if [ ! -d "${USRLOCAL}/libdata/pkgconfig" ]; then
+        #        mkdir -p ${USRLOCAL}/libdata/pkgconfig
+        #fi
 
 
         # Main wireguard symlinks.
         # Install Kernel Modules
-        if [ -d "${INSTALLPATH}/boot" ]; then
-                cd "${INSTALLPATH}/boot" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}/boot/${file}" "/boot/${file}"
-                done
-        fi
         if [ -d "${INSTALLPATH}/boot/modules" ]; then
                 cd "${INSTALLPATH}/boot/modules" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}/boot/modules/${file}" "/boot/modules/${file}"
-                done
                 for file in *.ko
                         do
-                                kldload -n "/boot/modules/${file}"
+                                kldload -n "${INSTALLPATH}/boot/modules/${file}"
                 done
         fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/bin" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/bin" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/bin/${file}" "${USRLOCAL}/bin/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/etc" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/etc" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/etc/${file}" "${USRLOCAL}/etc/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/etc/${APPNAME}" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/etc/${APPNAME}" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/etc/${APPNAME}/${file}" "${USRLOCAL}/etc/${APPNAME}/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/include" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/include" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/include/${file}" "${USRLOCAL}/include/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/lib" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/lib" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/lib/${file}" "${USRLOCAL}/lib/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig/${file}" "${USRLOCAL}/libdata/pkgconfig/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/libexec" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/libexec" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/libexec/${file}" "${USRLOCAL}/libexec/${file}"
-                done
-        fi
-
-        # Required symlinks for wireguard.
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/doc" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/doc" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/share/doc/${file}" "${USRLOCAL}/share/doc/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/man/man1" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/man/man1" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/man/man1/${file}" "${USRLOCAL}/man/man1/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/examples" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/examples" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/share/examples/${file}" "${USRLOCAL}/share/examples/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/licenses" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/licenses" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/share/licenses/${file}" "${USRLOCAL}/share/licenses/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/man/man1" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/man/man1" || return
-                for file in *
-                        do
-                                ln -fhs "${INSTALLPATH}${USRLOCAL}/share/man/man1/${file}" "${USRLOCAL}/share/man/man1/${file}"
-                done
-        fi
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/bin" "${USRLOCAL}/bin"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/etc" "${USRLOCAL}/etc"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/include" "${USRLOCAL}/include"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/lib" "${USRLOCAL}/lib"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" "${USRLOCAL}/libdata/pkgconfig"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/libexec" "${USRLOCAL}/libexec"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/doc" "${USRLOCAL}/share/doc"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/man/man1" "${USRLOCAL}/man/man1"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/examples" "${USRLOCAL}/share/examples"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/licenses" "${USRLOCAL}/share/licenses"
+        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/man/man1" "${USRLOCAL}/share/man/man1"
 }
 
 rem_symlinkdir()
