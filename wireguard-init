@@ -31,53 +31,38 @@
 PATH=${PATH}:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 # Determine full working directory.
-CWDIR=$(dirname "$(realpath "$0")")
-# CWDIR=/mnt/nvme/extensions/wireguard
+CWDIR=$(dirname "$(realpath "$0")") # /mnt/nvme/extensions/wireguard
 
 # Global variables.
-PLATFORM=$(uname -m)
-# PLATFORM=amd64
-PRODUCT=$(uname -i)
-# PRODUCT=XIGMANAS-x64
-PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.')
-# PRDVERSION=131
-PRDPLATFORM=$(cat /etc/platform)
-# PRDPLATFORM=x64-embedded
-SCRIPTNAME=$(basename "$0")
-# SCRIPTNAME=wireguard-init
-CONFIG="/cf/conf/config.xml"
-# CONFIG=/cf/conf/config.xml
+PLATFORM=$(uname -m) # amd64
+PRODUCT=$(uname -i) # XIGMANAS-x64
+PRDVERSION=$(uname -r | cut -d '-' -f1 | tr -d '.') # 131
+PRDPLATFORM=$(cat /etc/platform) # x64-embedded
+SCRIPTNAME=$(basename "$0") # wireguard-init
+CONFIG="/cf/conf/config.xml" # /cf/conf/config.xml
 APPNAME="wireguard"
-EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log"
-# EXTLOGFILE=/mnt/nvme/extensions/wireguard/log/wireguard_ext.log
-#WIREGUARDLOGFILE=${EXTLOGFILE}
-FULLAPPNAME="${APPNAME}-addon"
-# FULLAPPNAME=wireguard-addon
-PKGCONF="/etc/pkg/FreeBSD.conf"
-# PKGCONF=/etc/pkg/FreeBSD.conf
+EXTLOGFILE="${CWDIR}/log/${APPNAME}_ext.log" # /mnt/nvme/extensions/wireguard/log/wireguard_ext.log
+FULLAPPNAME="${APPNAME}-addon" # wireguard-addon
+PKGCONF="/etc/pkg/FreeBSD.conf" # /etc/pkg/FreeBSD.conf
 USRLOCAL="/usr/local"
-APPPATH="${USRLOCAL}/bin"
-# APPPATH=/usr/local/bin
+APPPATH="${USRLOCAL}/bin" # /usr/local/bin
 APPMASTER="wireguard"
 APPBIN="wg"
 PKG_BUNDLE="bash gettext-runtime indexinfo readline wireguard wireguard-kmod wireguard-tools"
+MAIN_PKG="wireguard"
 WWWPATH="/usr/local/www"
 WIREGUARDCONF="/conf/wireguard_config"
 WIREGUARDCONFLINK="/var/etc/wireguardconf"
-INSTALLPATH="${CWDIR}/${FULLAPPNAME}"
-# INSTALLPATH=/mnt/nvme/extensions/wireguard/wireguard-addon
+INSTALLPATH="${CWDIR}/${FULLAPPNAME}" # /mnt/nvme/extensions/wireguard/wireguard-addon
 BRANCH="master"
 GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
-# GITURL=https://github.com/fctr/xigmanas-wireguard-extension/archive/master.zip
 VERFILE="https://raw.githubusercontent.com/fctr/xigmanas-${APPNAME}-extension/${BRANCH}/version"
-# VERFILE=https://raw.githubusercontent.com/fctr/xigmanas-wireguard-extension/master/version
 
 error_notify()
 {
         # Log/notify message on error and exit.
         MSG="$*"
         logger -t "${SCRIPTNAME}" "${MSG}"
-        #echo -e "$*" >&2; exit 1
         echo "$*" >&2; exit 1
 }
 
@@ -128,10 +113,6 @@ wireguard_initial_download()
                 error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
                 wireguard_pkg_extract
         fi
-        #if [ ! -f "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
-                # Must create fake conf file
-        #        touch "${CWDIR}/${FULLAPPNAME}${USRLOCAL}/etc/wireguard/wg0.conf"
-        #fi
 }
 
 wireguard_pkg_extract()
@@ -243,139 +224,19 @@ platform_check()
                 create_addon_env
                 ext_initial_download
                 wireguard_initial_download
-                sys_symlinkdir
+                sys_installpkgs
         elif [ "${PRDPLATFORM}" = "x64-full" ]; then
                 create_addon_env
                 ext_initial_download
                 wireguard_native_download
-                #bin_symlinks
         fi
 }
 
-sys_linkfiles()
+sys_installpkgs()
 {
-    local SOURCEPATH=$1
-    local DESTPATH=$2
-    if [ -d "${SOURCEPATH}" ]; then
-        cd "${SOURCEPATH}" || return
-        mkdir -p "${DESTPATH}"
-        for file in *
-            do
-                if [ -d "${SOURCEPATH}/${file}" ]; then
-                  # It's a folder, so let's start again
-                  sys_linkfiles "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
-                else
-                  # It's just a file, so symlink it
-                  ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
-                fi
-            done
-    fi
-    unset SOURCEPATH
-    unset DESTPATH
-}
-
-sys_symlinkdir()
-{
-        # Check and create/relink required symlinks/dirs for wireguard.
-        # This environment will be checked each time the script is started for consistency.
-
-        # Install Kernel Modules
-        if [ -d "${INSTALLPATH}/boot/modules" ]; then
-          cd "${INSTALLPATH}/boot/modules" || return
-          for file in *.ko
-            do
-                kldload -n "${INSTALLPATH}/boot/modules/${file}"
-            done
-        fi
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/bin" "${USRLOCAL}/bin"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/etc" "${USRLOCAL}/etc"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/include" "${USRLOCAL}/include"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/lib" "${USRLOCAL}/lib"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" "${USRLOCAL}/libdata/pkgconfig"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/libexec" "${USRLOCAL}/libexec"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/doc" "${USRLOCAL}/share/doc"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/man/man1" "${USRLOCAL}/man/man1"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/examples" "${USRLOCAL}/share/examples"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/licenses" "${USRLOCAL}/share/licenses"
-        sys_linkfiles "${INSTALLPATH}${USRLOCAL}/share/man/man1" "${USRLOCAL}/share/man/man1"
-}
-
-rem_symlinkdir()
-{
-        [ -z "$USRLOCAL" ] && return; 
-        # Remove main wireguard symlinks.
-        if [ -d "${INSTALLPATH}${USRLOCAL}/bin" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/bin" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/bin/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/include" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/include" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/include/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/lib" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/lib" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/lib/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/libdata/pkgconfig" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/libdata/pkgconfig/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/libexec" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/libexec" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/libexec/${file}"
-                done
-        fi
-
-        # Remove additional required symlinks for wireguard.
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/doc" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/doc" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/share/doc/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/man/man1" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/man/man1" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/man/man1/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/examples" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/examples" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/share/examples/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/licenses" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/licenses" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/share/licenses/${file}"
-                done
-        fi
-        if [ -d "${INSTALLPATH}${USRLOCAL}/share/man/man1" ]; then
-                cd "${INSTALLPATH}${USRLOCAL}/share/man/" || return
-                for file in *
-                        do
-                                rm -rf "${USRLOCAL:?}/share/man/man1/${file}"
-                done
-        fi
+    local MAIN_FILE=$(pkg search -q ${MAIN_PKG})
+    pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg"
+    #if [ !-f ]
 }
 
 postinit_cmd()
@@ -614,7 +475,7 @@ remove_addon()
         # Check for working platform.
         if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
                 if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
-                        rem_symlinkdir
+                        pkg delete -y ${PKG_BUNDLE}
                 fi
         elif [ "${PRDPLATFORM}" = "x64-full" ]; then
                 if [ -f "${USRLOCAL}/bin/${APPBIN}" ]; then
