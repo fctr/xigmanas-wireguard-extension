@@ -219,10 +219,10 @@ sys_installpkgs()
 {
     local MAIN_FILE=$(pkg search -q ${MAIN_PKG} | awk "NR==1")
     pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg" || error_notify "Error: A problem has occurred while installing ${MAIN_PKG}."
-    if [ !-f "${CWDIR}/conf/wg0.conf" ]; then
+    if [ ! -f "${CWDIR}/conf/wg0.conf" ]; then
       touch "${CWDIR}/conf/wg0.conf" || error_notify "Error: A problem has occurred while creating the wg0.conf file."
     fi
-    if [ !-f "${USRLOCAL}/etc/wireguard/wg0.conf"]; then
+    if [ ! -f "${USRLOCAL}/etc/wireguard/wg0.conf"]; then
       ln -s "${CWDIR}/conf/wg0.conf" "${USRLOCAL}/etc/wireguard/wg0.conf"
     fi
 }
