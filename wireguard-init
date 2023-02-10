@@ -109,26 +109,9 @@ wireguard_initial_download()
         if [ ! -f "${CWDIR}/${FULLAPPNAME}${APPPATH}/${APPBIN}" ]; then
                 # Fetch wireguard packages.
                 update_freebsdconf
-                pkg fetch -y -o "${CWDIR}/download" ${PKG_BUNDLE} || \
-                    error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
-                # wireguard_pkg_extract
+                pkg fetch -d -y -o "${CWDIR}/download" ${MAIN_PKG} || \
+                    error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
         fi
-}
-
-wireguard_pkg_extract()
-{
-        for PKG in ${PKG_BUNDLE}; do
-                # Extract fetched package for Embedded platform.
-                if [ ! -f "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" ]; then
-                        echo "Extracting ${PKG}..."
-                        tar -Jxf "${CWDIR}/download/All/${PKG}"-[0-9]*.[tp][xk][zg] -C "${CWDIR}/${FULLAPPNAME}/" || \
-                            error_notify "Error: A problem has occurred while extracting ${PKG} files."
-                        mkdir -p "${CWDIR}/${FULLAPPNAME}/${PKG}"
-                        mv "${CWDIR}/${FULLAPPNAME}"/+* "${CWDIR}/${FULLAPPNAME}/${PKG}"
-                        rm "${CWDIR}/download/All/${PKG}"-[0-9]*.[tp][xk][zg]
-                        echo "Done"
-                fi
-        done
 }
 
 ext_initial_download()
@@ -235,8 +218,11 @@ platform_check()
 sys_installpkgs()
 {
     local MAIN_FILE=$(pkg search -q ${MAIN_PKG} | awk "NR==1")
-    pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg"
-    #if [ !-f ]
+    pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg" || error_notify "Error: A problem has occurred while installing ${MAIN_PKG}."
+    if [ !-f "${CWDIR}/conf/wg0.conf" ]
+      touch "${CWDIR}/conf/wg0.conf" || error_notify "Error: A problem has occurred while creating the wg0.conf file."
+    if [ !-f "${USRLOCAL}/etc/wireguard/wg0.conf"]
+      ln -s "${CWDIR}/conf/wg0.conf" "${USRLOCAL}/etc/wireguard/wg0.conf"
 }
 
 postinit_cmd()
