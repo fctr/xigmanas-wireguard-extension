@@ -258,20 +258,12 @@ sys_linkfiles()
     DESTPATH=$2
     if [ -d "${SOURCEPATH}" ]; then
         cd "${SOURCEPATH}" || return
-        if [ ! -d "${DESTPATH}" ]; then
-            mkdir "${DESTPATH}"
-        fi
+        mkdir -p "${DESTPATH}"
         for file in *
             do
                 if [ -d "${SOURCEPATH}/${file}" ]; then
-                  # It's a folder, so check to see if it exists
-                  if [ -d "${DESTPATH}/${file}" ]; then
-                      # It exists already, so just link the files inside it
-                      sys_linkfiles "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
-                  else
-                      # Not there, so link to it.
-                      ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
-                  fi
+                  # It's a folder, so let's start again
+                  sys_linkfiles "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
                 else
                   # It's just a file, so symlink it
                   ln -fhs "${SOURCEPATH}/${file}" "${DESTPATH}/${file}"
