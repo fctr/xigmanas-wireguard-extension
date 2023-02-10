@@ -3,7 +3,7 @@
 # A simple wireguard add-on for XigmaNAS x64 11.x and later.
 # License: BSD2CLAUSE (BSD 2-clause Simplified License).
 # Debug script
-#set -x
+set -x
 
 # Copyright (c) 2023 FCTR
 # All rights reserved.
