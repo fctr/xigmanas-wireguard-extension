@@ -34,6 +34,87 @@
 require("auth.inc");
 require("guiconfig.inc");
 
+?>
+
+	<script type="text/javascript">
+	/*<![CDATA[*/
+if(!window.XMLHttpRequest)
+{
+	var reqObj = 
+	[
+		function() {return new ActiveXObject("Msxml2.XMLHTTP");},
+		function() {return new ActiveXObject("Microsoft.XMLHTTP");},
+		function() {return window.createRequest();}
+	];
+	for(a = 0, z = reqObj.length; a < z; a++)
+	{
+		try
+		{
+			window.XMLHttpRequest = reqObj[a];
+			break;
+		}
+		catch(e)
+		{
+			window.XMLHttpRequest = null;
+		}
+	}
+}
+ 
+var req = new XMLHttpRequest();
+ 
+window.onload = function()
+{
+	if(req == null)
+	{
+		alert('Your browser currently does not support the XMLHttpRequest object');
+		return;
+	}
+	getData();
+	window.setInterval('updateData()', 5000);
+}
+
+function updateData()
+{
+    if (document.getElementById('lastshake') != null)
+    {
+    	req.abort();
+    	req.open('GET', 'wireguard-gui-lastshake.php');
+    	req.onreadystatechange = function()
+    	{
+    		if(req.readyState != 4)
+    		{
+    			return;
+    		}
+    		if(req.status == 200)
+    		{
+    			document.getElementById('lastshake').innerHTML = req.responseText;
+    		}
+    	}
+    	req.send(null);
+    }	
+    if (document.getElementById('transferred") != null)
+    {
+    	req.abort();
+    	req.open('GET', 'wireguard-gui-transferred.php');
+    	req.onreadystatechange = function()
+    	{
+    		if(req.readyState != 4)
+    		{
+    			return;
+    		}
+    		if(req.status == 200)
+    		{
+    			document.getElementById('transferred').innerHTML = req.responseText;
+    		}
+    	}
+    	req.send(null);
+    }	
+}
+	/*]]>*/
+	</script>
+
+<?php
+
 $application = "WireGuard";
 $pgtitle = array(gtext("Extensions"), "WireGuard");
 
@@ -365,7 +446,7 @@ function get_lastshake() {
 	}
 	return ($result[0]);
 }
-function get_datatranferred() {
+function get_datatransferred() {
     exec("/usr/local/bin/wg | grep \"transfer:\" | cut -d: -f 2 | awk '{\$1=\$1};1'", $result);
 	if(empty($result)) {
 		return("");
@@ -488,8 +569,14 @@ $(document).ready(function(){
                 } else {
                   if (is_active($interfacename)) {
                       html_text("wg_active",gtext("State"),gtext("Active")); 
-                      html_text("wg_handshake",gtext("Last Handshake"),get_lastshake()); 
-                      html_text("wg_transfer",gtext("Data Transferred"),get_datatranferred()); 
+                      //html_text("wg_handshake",gtext("Last Handshake"),get_lastshake()); 
+                      //html_text("wg_transfer",gtext("Data Transferred"),get_datatransferred()); 
+                      echo "<tr id=\"wg_handshake_tr\"><td class=\"vncell\" width=\"22%"\ valign=\"top\"><label for=\"wg_handshake\">" . gtext("Last Handshake") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"lastshake\">";
+                      echo get_lastshake();
+                      echo "</div></td></tr>";
+                      echo "<tr id=\"wg_transfer_tr\"><td class=\"vncell\" width=\"22%"\ valign=\"top\"><label for=\"wg_transfer\">" . gtext("Data Transferred") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"transferred\">";
+                      echo get_datatransferred();
+                      echo "</div></td></tr>";
                   } else {
                       html_text("wg_active",gtext("State"),gtext("Inactive")); 
                   } 
