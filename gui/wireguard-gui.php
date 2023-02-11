@@ -597,7 +597,7 @@ function updateData()
     	}
     	req.send(null);
     }	
-    if (document.getElementById('transferred") != null)
+    if (document.getElementById('transferred') != null)
     {
     	req.abort();
     	req.open('GET', 'wireguard-gui-transferred.php');
