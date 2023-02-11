@@ -312,6 +312,8 @@ gui_start()
                         fi
                         ln -fhs "${CWDIR}/gui/ext/wireguard-gui" "${WWWPATH}/ext/" || error_notify "Error: A problem has occurred while copying extension gui files."
                         ln -fhs "${CWDIR}/gui/wireguard-gui.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
+                        ln -fhs "${CWDIR}/gui/wireguard-gui-lastshake.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
+                        ln -fhs "${CWDIR}/gui/wireguard-gui-transferred.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
 
                 fi
         fi
