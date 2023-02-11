@@ -542,11 +542,6 @@ $(document).ready(function(){
 	<?php include("formend.inc");?>
 </form>
 <script type="text/javascript">
-<!--
-enable_change(false);
-//-->
-</script>
-<script type="text/javascript">
 /*<![CDATA[*/
 if(!window.XMLHttpRequest)
 {
