@@ -574,8 +574,7 @@ window.onload = function()
 		alert('Your browser currently does not support the XMLHttpRequest object');
 		return;
 	}
-	getData();
-	window.setInterval('updateData()', 5000);
+	window.setInterval('updateData()', 3000);
 }
 
 function updateData()
