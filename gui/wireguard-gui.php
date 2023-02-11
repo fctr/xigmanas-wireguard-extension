@@ -332,6 +332,15 @@ function is_active($conf) {
 	exec("/sbin/ifconfig | grep {$conf}", $result);
 	return !empty($result);
 }
+function get_lastshake($conf) {
+    exec("/usr/local/bin/wg | grep "latest handshake:" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
+	return ($result[0]);
+}
+function get_datatranferred($conf) {
+    exec("/usr/local/bin/wg | grep "transfer:" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
+	return ($result[0]);
+} 
+
 function startedonboot($conf) {
 	exec("/usr/sbin/service -e | grep '/wireguard$'", $result);
 	return !empty($result);
@@ -445,7 +454,13 @@ $(document).ready(function(){
                   html_inputbox("endpoint", gtext("Endpoint"), get_endpoint($interfacename),gtext("Enter FQDN or IP Address followed by a : and port (i.e. wg.company.com:51820)"),true,60,false);
                   html_inputbox("keepalive", gtext("Persistent Keepalive"), get_keepalive($interfacename),gtext("Seconds between pings. Typically left blank"),false,20,false);
                 } else {
-                  html_text("wg_active",gtext("Active"),(is_active($interfacename)? "Yes" : "No")); 
+                  if (is_active($interfacename)) {
+                      html_text("wg_active",gtext("State"),gtext("Active")); 
+                      html_text("wg_handshake",gtext("Last Handshake"),get_lastshake($interfacename)); 
+                      html_text("wg_transfer",gtext("Data Transferred"),get_datatranferred($interfacename)); 
+                  } else {
+                      html_text("wg_active",gtext("State"),gtext("Inactive")); 
+                  } 
                   html_text("wg_boot",gtext("Start on Boot"),(startedonboot($interfacename)? "Yes" : "No")); 
                   html_text("int_pubkey", gtext("Public Key"), get_pubkey($interfacename));
                   html_text("int_address", gtext("Address"), get_address($interfacename));
