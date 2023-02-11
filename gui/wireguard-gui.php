@@ -34,87 +34,6 @@
 require("auth.inc");
 require("guiconfig.inc");
 
-?>
-
-	<script type="text/javascript">
-	/*<![CDATA[*/
-if(!window.XMLHttpRequest)
-{
-	var reqObj = 
-	[
-		function() {return new ActiveXObject("Msxml2.XMLHTTP");},
-		function() {return new ActiveXObject("Microsoft.XMLHTTP");},
-		function() {return window.createRequest();}
-	];
-	for(a = 0, z = reqObj.length; a < z; a++)
-	{
-		try
-		{
-			window.XMLHttpRequest = reqObj[a];
-			break;
-		}
-		catch(e)
-		{
-			window.XMLHttpRequest = null;
-		}
-	}
-}
- 
-var req = new XMLHttpRequest();
- 
-window.onload = function()
-{
-	if(req == null)
-	{
-		alert('Your browser currently does not support the XMLHttpRequest object');
-		return;
-	}
-	getData();
-	window.setInterval('updateData()', 5000);
-}
-
-function updateData()
-{
-    if (document.getElementById('lastshake') != null)
-    {
-    	req.abort();
-    	req.open('GET', 'wireguard-gui-lastshake.php');
-    	req.onreadystatechange = function()
-    	{
-    		if(req.readyState != 4)
-    		{
-    			return;
-    		}
-    		if(req.status == 200)
-    		{
-    			document.getElementById('lastshake').innerHTML = req.responseText;
-    		}
-    	}
-    	req.send(null);
-    }	
-    if (document.getElementById('transferred") != null)
-    {
-    	req.abort();
-    	req.open('GET', 'wireguard-gui-transferred.php');
-    	req.onreadystatechange = function()
-    	{
-    		if(req.readyState != 4)
-    		{
-    			return;
-    		}
-    		if(req.status == 200)
-    		{
-    			document.getElementById('transferred').innerHTML = req.responseText;
-    		}
-    	}
-    	req.send(null);
-    }	
-}
-	/*]]>*/
-	</script>
-
-<?php
-
 $application = "WireGuard";
 $pgtitle = array(gtext("Extensions"), "WireGuard");
 
@@ -627,4 +546,81 @@ $(document).ready(function(){
 enable_change(false);
 //-->
 </script>
+<script type="text/javascript">
+/*<![CDATA[*/
+if(!window.XMLHttpRequest)
+{
+	var reqObj = 
+	[
+		function() {return new ActiveXObject("Msxml2.XMLHTTP");},
+		function() {return new ActiveXObject("Microsoft.XMLHTTP");},
+		function() {return window.createRequest();}
+	];
+	for(a = 0, z = reqObj.length; a < z; a++)
+	{
+		try
+		{
+			window.XMLHttpRequest = reqObj[a];
+			break;
+		}
+		catch(e)
+		{
+			window.XMLHttpRequest = null;
+		}
+	}
+}
+ 
+var req = new XMLHttpRequest();
+ 
+window.onload = function()
+{
+	if(req == null)
+	{
+		alert('Your browser currently does not support the XMLHttpRequest object');
+		return;
+	}
+	getData();
+	window.setInterval('updateData()', 5000);
+}
+
+function updateData()
+{
+    if (document.getElementById('lastshake') != null)
+    {
+    	req.abort();
+    	req.open('GET', 'wireguard-gui-lastshake.php');
+    	req.onreadystatechange = function()
+    	{
+    		if(req.readyState != 4)
+    		{
+    			return;
+    		}
+    		if(req.status == 200)
+    		{
+    			document.getElementById('lastshake').innerHTML = req.responseText;
+    		}
+    	}
+    	req.send(null);
+    }	
+    if (document.getElementById('transferred") != null)
+    {
+    	req.abort();
+    	req.open('GET', 'wireguard-gui-transferred.php');
+    	req.onreadystatechange = function()
+    	{
+    		if(req.readyState != 4)
+    		{
+    			return;
+    		}
+    		if(req.status == 200)
+    		{
+    			document.getElementById('transferred').innerHTML = req.responseText;
+    		}
+    	}
+    	req.send(null);
+    }	
+}
+	/*]]>*/
+	</script>
+
 <?php include("fend.inc");?>
