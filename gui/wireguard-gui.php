@@ -571,10 +571,10 @@ $(document).ready(function(){
                       html_text("wg_active",gtext("State"),gtext("Active")); 
                       //html_text("wg_handshake",gtext("Last Handshake"),get_lastshake()); 
                       //html_text("wg_transfer",gtext("Data Transferred"),get_datatransferred()); 
-                      echo "<tr id=\"wg_handshake_tr\"><td class=\"vncell\" width=\"22%"\ valign=\"top\"><label for=\"wg_handshake\">" . gtext("Last Handshake") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"lastshake\">";
+                      echo "<tr id=\"wg_handshake_tr\"><td class=\"vncell\" width=\"22%\" valign=\"top\"><label for=\"wg_handshake\">" . gtext("Last Handshake") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"lastshake\">";
                       echo get_lastshake();
                       echo "</div></td></tr>";
-                      echo "<tr id=\"wg_transfer_tr\"><td class=\"vncell\" width=\"22%"\ valign=\"top\"><label for=\"wg_transfer\">" . gtext("Data Transferred") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"transferred\">";
+                      echo "<tr id=\"wg_transfer_tr\"><td class=\"vncell\" width=\"22%\" valign=\"top\"><label for=\"wg_transfer\">" . gtext("Data Transferred") . "</label></td><td class=\"vtable\" width=\"78%\"><div id=\"transferred\">";
                       echo get_datatransferred();
                       echo "</div></td></tr>";
                   } else {
