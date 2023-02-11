@@ -333,11 +333,11 @@ function is_active($conf) {
 	return !empty($result);
 }
 function get_lastshake($conf) {
-    exec("/usr/local/bin/wg | grep "latest handshake:" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
+    exec("/usr/local/bin/wg | grep \"latest handshake:\" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
 	return ($result[0]);
 }
 function get_datatranferred($conf) {
-    exec("/usr/local/bin/wg | grep "transfer:" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
+    exec("/usr/local/bin/wg | grep \"transfer:\" | cut -d: -f 2 | awk '{$1=$1};1'", $result);
 	return ($result[0]);
 } 
 
