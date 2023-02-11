@@ -565,11 +565,12 @@ if(!window.XMLHttpRequest)
 	}
 }
  
-var req = new XMLHttpRequest();
+var req1 = new XMLHttpRequest();
+var req2 = new XMLHttpRequest();
  
 window.onload = function()
 {
-	if(req == null)
+	if(req1 == null)
 	{
 		alert('Your browser currently does not support the XMLHttpRequest object');
 		return;
@@ -581,37 +582,37 @@ function updateData()
 {
     if (document.getElementById('lastshake') != null)
     {
-    	req.abort();
-    	req.open('GET', 'wireguard-gui-lastshake.php');
-    	req.onreadystatechange = function()
+    	req1.abort();
+    	req1.open('GET', 'wireguard-gui-lastshake.php');
+    	req1.onreadystatechange = function()
     	{
-    		if(req.readyState != 4)
+    		if(req1.readyState != 4)
     		{
     			return;
     		}
-    		if(req.status == 200)
+    		if(req1.status == 200)
     		{
-    			document.getElementById('lastshake').innerHTML = req.responseText;
+    			document.getElementById('lastshake').innerHTML = req1.responseText;
     		}
     	}
-    	req.send(null);
+    	req1.send(null);
     }	
     if (document.getElementById('transferred') != null)
     {
-    	req.abort();
-    	req.open('GET', 'wireguard-gui-transferred.php');
-    	req.onreadystatechange = function()
+    	req2.abort();
+    	req2.open('GET', 'wireguard-gui-transferred.php');
+    	req2.onreadystatechange = function()
     	{
-    		if(req.readyState != 4)
+    		if(req2.readyState != 4)
     		{
     			return;
     		}
-    		if(req.status == 200)
+    		if(req2.status == 200)
     		{
-    			document.getElementById('transferred').innerHTML = req.responseText;
+    			document.getElementById('transferred').innerHTML = req2.responseText;
     		}
     	}
-    	req.send(null);
+    	req2.send(null);
     }	
 }
 	/*]]>*/
