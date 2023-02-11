@@ -360,10 +360,16 @@ function is_active($conf) {
 }
 function get_lastshake() {
     exec("/usr/local/bin/wg | grep \"latest handshake:\" | cut -d: -f 2 | awk '{\$1=\$1};1'", $result);
+	if(empty($result)) {
+		return("");
+	}
 	return ($result[0]);
 }
 function get_datatranferred() {
     exec("/usr/local/bin/wg | grep \"transfer:\" | cut -d: -f 2 | awk '{\$1=\$1};1'", $result);
+	if(empty($result)) {
+		return("");
+	}
 	return ($result[0]);
 } 
 
