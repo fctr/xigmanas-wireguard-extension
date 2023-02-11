@@ -283,7 +283,7 @@ EOF
                             error_notify "Error: A problem has occurred while executing postinit file.")
                         echo "Done"
                 fi
-                sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
+                sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" ACTIVATE_ON_BOOT=NO >/dev/null 2>&1
         fi
 }
 
@@ -296,7 +296,7 @@ gui_start()
                         # Try to restore default configuration.
                         runtime_config
                         # Set default config.
-                        sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" >/dev/null 2>&1
+                        sysrc -f "${CWDIR}${WIREGUARDCONF}" GUI_ENABLE=YES INSTALL_DIR="${CWDIR}" ACTIVATE_ON_BOOT=NO >/dev/null 2>&1
                 fi
                 GUI_STATUS=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -qn GUI_ENABLE)
                 if [ "${GUI_STATUS}" = "YES" ]; then
@@ -331,6 +331,8 @@ gui_enable()
                 fi
                 ln -fhs "${CWDIR}/gui/ext/wireguard-gui" "${WWWPATH}/ext/" || error_notify "Error: A problem has occurred while copying extension gui files."
                 ln -fhs "${CWDIR}/gui/wireguard-gui.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
+                ln -fhs "${CWDIR}/gui/wireguard-gui-lastshake.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
+                ln -fhs "${CWDIR}/gui/wireguard-gui-transferred.php" "${WWWPATH}/" || error_notify "Error: A problem has occurred while linking extension gui files."
         else
                 error_notify "Error: Extension gui files not found."
         fi
@@ -341,6 +343,8 @@ gui_disable()
         # Disable gui if -t option specified.
         if [ -d "${CWDIR}/gui" ]; then
                 rm -f "${WWWPATH}/wireguard-gui.php"
+                rm -f "${WWWPATH}/wireguard-gui-lastshake.php"
+                rm -f "${WWWPATH}/wireguard-gui-transferred.php"
                 rm -rf "${WWWPATH}/ext/wireguard-gui"
                 rm -f "${LOCALSHAREPATH}/locale-wireguard"
                 rm -rf "${WIREGUARDCONFLINK}"
@@ -375,8 +379,6 @@ pkg_upgrade()
                         # We have to use the manifest file for version comparison for Embedded platform.
                         NOWPKG=$(awk -F'\"version\":' '{print $2}' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | awk -F\" '{print $2}' | tr -cd '[:digit:]')
                         NEWPKG=$(pkg search -Q version "${PKG}" | awk 'NR==2' | cut -d: -f 2 | tr -cd '[:digit:]')
-                        # NOWPKG=$(grep '"version":"' "${CWDIR}/${FULLAPPNAME}/${PKG}/+MANIFEST" | cut -d',' -f3 | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
-                        # NEWPKG=$(pkg search "${PKG}" | awk 'NR==1' | grep -o -E "([0-9]{1,}\.)+[0-9]{1,}" | tr -d '.')
 
                         # Extract new fetched packages for Embedded platform on new version.
                         if [ "${NEWPKG}" -gt "${NOWPKG}" ]; then
@@ -503,11 +505,9 @@ get_versions()
 
         # Display product versions.
         for PKG in ${PKG_BUNDLE}; do
-#                echo -e "\n$PKG version:" && pkg version -n $PKG -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
                 printf "\n%s version:" "$PKG" && pkg version -n "$PKG" -q | rev | cut -f 1 -d'-' | rev | cut -f 1 -w
         done
 
-#        echo -e "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
         printf "\nExtension version:" && echo "${FULLAPPNAME} ${APPVERSION}"
         exit 0
 }
