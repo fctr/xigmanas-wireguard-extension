@@ -106,11 +106,10 @@ wireguard_native_download()
 wireguard_initial_download()
 {
         # Check if wireguard already exist.
-        if [ ! -f "${CWDIR}/${FULLAPPNAME}${APPPATH}/${APPBIN}" ]; then
-                # Fetch wireguard packages.
-                update_freebsdconf
-                pkg fetch -d -y -o "${CWDIR}/download" ${MAIN_PKG} || \
-                    error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
+        if [ ! "$(ls -A '${CWDIR}/download/All')" ]; then
+          update_freebsdconf
+          pkg fetch -d -y -o "${CWDIR}/download" ${MAIN_PKG} || \
+              error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
         fi
 }
 
@@ -223,7 +222,7 @@ sys_installpkgs()
     if [ ! -f "${CWDIR}/conf/wg0.conf" ]; then
       touch "${CWDIR}/conf/wg0.conf" || error_notify "Error: A problem has occurred while creating the wg0.conf file."
     fi
-    
+    chmod 660 "${CWDIR}/conf/wg0.conf"
     if [ ! -f "${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
       ln -s "${CWDIR}/conf/wg0.conf" "${USRLOCAL}/etc/wireguard/wg0.conf"
     fi
