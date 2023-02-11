@@ -114,7 +114,7 @@ if ($_POST) {
         } else {
             if (!is_active($interfacename))
             {
-                exec("/usr/local/bin/wg-quick up ${intefacename}", $result);   
+                exec("/usr/local/bin/wg-quick up {$interfacename}", $result);   
             }
      	    $return_val = 0;
   	 	    $output = [];
@@ -127,7 +127,7 @@ if ($_POST) {
         } else {
             if (is_active($interfacename))
             {
-                exec("/usr/local/bin/wg-quick down ${intefacename}", $result);   
+                exec("/usr/local/bin/wg-quick down {$interfacename}", $result);   
             }
      	    $return_val = 0;
   	 	    $output = [];
