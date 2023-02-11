@@ -107,6 +107,32 @@ function validateMTU($mtu) {
 }
 
 if ($_POST) {
+	if(isset($_POST['activate']) && $_POST['activate']):
+        if ($editing) {
+            $input_errors[] = gtext('Please finish editing before activating.');
+            $return_val = 1;
+        } else {
+            if (!is_active($interfacename))
+            {
+                exec("/usr/local/bin/wg-quick up ${intefacename}", $result);   
+            }
+     	    $return_val = 0;
+  	 	    $output = [];
+        }
+	endif;
+	if(isset($_POST['deactivate']) && $_POST['deactivate']):
+        if ($editing) {
+            $input_errors[] = gtext('Please finish editing before deactivating.');
+            $return_val = 1;
+        } else {
+            if (is_active($interfacename))
+            {
+                exec("/usr/local/bin/wg-quick down ${intefacename}", $result);   
+            }
+     	    $return_val = 0;
+  	 	    $output = [];
+        }
+	endif;
 	if(isset($_POST['edit']) && $_POST['edit']):
         $editing = (bool)true;
 		$return_val = 0;
@@ -482,7 +508,12 @@ $(document).ready(function(){
     		  echo "<input name=\"apply\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Apply") . "\" value=\"" . gtext("Apply") . "\" />&nbsp;";
     		  echo "<input name=\"cancel\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Cancel") . "\" value=\"" . gtext("Cancel") . "\" onclick=\"return confirm('" . gtext("Discard all changes?") . "')\" />";
             } else {
-    		  echo "<input name=\"edit\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Edit") . "\" value=\"" . gtext("Edit") . "\" />";
+              if (is_active($interfacename)) {
+        		  echo "<input name=\"deactivate\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Deactivate") . "\" value=\"" . gtext("Deactivate") . "\" />";
+              } else {
+        		  echo "<input name=\"activate\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Activate") . "\" value=\"" . gtext("Activate") . "\" />&nbsp;";
+        		  echo "<input name=\"edit\" type=\"submit\" class=\"formbtn\" title=\"" . gtext("Edit") . "\" value=\"" . gtext("Edit") . "\" />&nbsp;";
+              }
             }
             ?>
 			</div>
