@@ -337,7 +337,7 @@ function get_lastshake() {
 	return ($result[0]);
 }
 function get_datatranferred() {
-    exec("/usr/local/bin/wg | grep \"transfer:\" | cut -d: -f 2 | awk '{\$1=\$1}\;1'", $result);
+    exec("/usr/local/bin/wg | grep \"transfer:\" | cut -d: -f 2 | awk '{\$1=\$1};1'", $result);
 	return ($result[0]);
 } 
 
