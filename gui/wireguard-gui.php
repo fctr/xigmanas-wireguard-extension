@@ -174,7 +174,7 @@ if ($_POST) {
           if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
           fwrite($myfile, "\n");
           fclose($myfile);
-          if (isset($_POST['wg_boot']) && ['wg_boot'] === "yes") {
+          if (isset($_POST['wg_boot'])) {
             write_to_conf("ACTIVATE_ON_BOOT", "YES");
             if (!startedonboot($interfacename)) {
                 exec("sysrc wireguard_interfaces=\"wg0\"", $result);
