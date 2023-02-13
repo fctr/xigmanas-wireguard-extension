@@ -174,7 +174,6 @@ if ($_POST) {
           if (!empty($_POST['keepalive'])) fwrite($myfile, "\nPersistentKeepalive = " . $_POST['keepalive']);
           fwrite($myfile, "\n");
           fclose($myfile);
-          exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
           if (isset($_POST['wg_boot']) && ['wg_boot'] === "yes") {
             write_to_conf("ACTIVATE_ON_BOOT", "YES");
             if (!startedonboot($interfacename)) {
@@ -188,6 +187,7 @@ if ($_POST) {
                 exec("sysrc -x wireguard_interfaces", $result);
             }
           }
+          exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf");
         }
 		$output = [];
 	}
