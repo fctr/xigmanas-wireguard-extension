@@ -389,6 +389,7 @@ function startonboot($conf, $enableboot) {
     }
 }
 function write_to_conf($key, $value) {
+	global $conffile;
     if (empty($key))
         return (bool)false;
     exec("/usr/sbin/sysrc -f \"{$conffile}\" {$key}=\"{$value}\" >/dev/null 2>&1");
