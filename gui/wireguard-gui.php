@@ -391,7 +391,7 @@ function startonboot($conf, $enableboot) {
 function write_to_conf($key, $value) {
     if (empty($key))
         return (bool)false;
-    exec("sysrc -f \"{$conffile}\" {$key}={$value} >/dev/null 2>&1");
+    exec("/usr/sbin/sysrc -f \"{$conffile}\" {$key}={$value} >/dev/null 2>&1");
     return (bool)true;    
 }
 function get_keepalive($conf) {
