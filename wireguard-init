@@ -46,13 +46,12 @@ FULLAPPNAME="${APPNAME}-addon" # wireguard-addon
 PKGCONF="/etc/pkg/FreeBSD.conf" # /etc/pkg/FreeBSD.conf
 USRLOCAL="/usr/local"
 APPPATH="${USRLOCAL}/bin" # /usr/local/bin
-APPMASTER="wireguard"
 APPBIN="wg"
 PKG_BUNDLE="bash gettext-runtime indexinfo readline wireguard wireguard-kmod wireguard-tools"
 MAIN_PKG="wireguard"
 WWWPATH="/usr/local/www"
-WIREGUARDCONF="/conf/wireguard_config"
-WIREGUARDCONFLINK="/var/etc/wireguardconf"
+WIREGUARDCONF="/conf/${APPNAME}_config"
+WIREGUARDCONFLINK="/var/etc/${APPNAME}conf"
 INSTALLPATH="${CWDIR}/${FULLAPPNAME}" # /mnt/nvme/extensions/wireguard/wireguard-addon
 BRANCH="master"
 GITURL="https://github.com/fctr/xigmanas-${APPNAME}-extension/archive/${BRANCH}.zip"
@@ -94,7 +93,7 @@ update_freebsdconf()
 wireguard_native_download()
 {
         # Install latest wireguard packages.
-        if ! pkg info | grep -q ${APPMASTER}; then
+        if ! pkg info | grep -q ${MAIN_PKG}; then
                 # Check if wireguard already exist.
                 if [ ! -f "${APPPATH}/${APPBIN}" ]; then
                         update_freebsdconf
@@ -226,6 +225,11 @@ sys_installpkgs()
     if [ ! -f "${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
       ln -s "${CWDIR}/conf/wg0.conf" "${USRLOCAL}/etc/wireguard/wg0.conf"
     fi
+    # This is only needed for embedded versions. Full versions use the service controller
+    local ACTIVATE_ON_BOOT=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -i -n ACTIVATE_ON_BOOT)
+    if [ "${ACTIVATE_ON_BOOT}" = "YES" ]; then
+      wg-quick up wg0.conf
+    fi 
 }
 
 postinit_cmd()

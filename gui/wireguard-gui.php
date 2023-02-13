@@ -48,9 +48,9 @@ if ($return_val == 0) {
 // Initialize some variables.
 //$rootfolder = dirname($config['rc']['postinit']['cmd'][$i]);
 $confdir = "/var/etc/wireguardconf";
-$cwdir = exec("/usr/bin/grep 'INSTALL_DIR=' {$confdir}/conf/wireguard_config | cut -d'\"' -f2");
+$conffile = "{$confdir}/conf/wireguard_config";
+$cwdir = exec("/usr/bin/grep 'INSTALL_DIR=' {$conffile} | cut -d'\"' -f2");
 $rootfolder = $cwdir;
-$configfile = "{$rootfolder}/conf/wireguard_config";
 $versionfile = "{$rootfolder}/version";
 //$date = strftime('%c');                // Previous PHP versions, deprecated as of PHP 8.1.
 $date = date('D M d h:i:s Y', time());   // Equivalent date replacement for the previous strftime function.
@@ -107,7 +107,7 @@ function validateMTU($mtu) {
 }
 
 if ($_POST) {
-	if(isset($_POST['activate']) && $_POST['activate']):
+	if(isset($_POST['activate']) && $_POST['activate']) {
         if ($editing) {
             $input_errors[] = gtext('Please finish editing before activating.');
             $return_val = 1;
@@ -119,8 +119,8 @@ if ($_POST) {
      	    $return_val = 0;
   	 	    $output = [];
         }
-	endif;
-	if(isset($_POST['deactivate']) && $_POST['deactivate']):
+	}
+	if(isset($_POST['deactivate']) && $_POST['deactivate']) {
         if ($editing) {
             $input_errors[] = gtext('Please finish editing before deactivating.');
             $return_val = 1;
@@ -132,22 +132,19 @@ if ($_POST) {
      	    $return_val = 0;
   	 	    $output = [];
         }
-	endif;
-	if(isset($_POST['edit']) && $_POST['edit']):
+	}
+	if(isset($_POST['edit']) && $_POST['edit']) {
         $editing = (bool)true;
 		$return_val = 0;
 		$output = [];
-	endif;
-	if(isset($_POST['cancel']) && $_POST['cancel']):
+	}
+	if(isset($_POST['cancel']) && $_POST['cancel']) {
         $editing = (bool)false;
 		$return_val = 0;
 		$output = [];
-	endif;
-	if(isset($_POST['apply']) && $_POST['apply']):
+	}
+	if(isset($_POST['apply']) && $_POST['apply']) {
         // save changes here
-        /*
-        wg_boot=yes
-        */
         $editing = (bool)false;
         if(!empty($_POST['int_prvkey']) && !validateKey($_POST['int_prvkey'])) { $editing = (bool)true; $input_errors[] = gtext('Private key format is incorrect.'); }
         if(empty($_POST['int_prvkey'])) { $_POST['int_prvkey'] = gen_prvkey(); }
@@ -182,34 +179,36 @@ if ($_POST) {
             if (!startedonboot($interfacename)) {
                 exec("sysrc wireguard_interfaces=\"wg0\"", $result);
                 exec("service wireguard enable", $result);
+                write_to_conf("ACTIVATE_ON_BOOT", "YES");
             }
           } else {
             if (startedonboot($interfacename)) {
                 exec("service wireguard delete", $result);
                 exec("sysrc -x wireguard_interfaces", $result);
+                write_to_conf("ACTIVATE_ON_BOOT", "NO");
             }
           }
         }
 		$output = [];
-	endif;
+	}
 
-	if(isset($_POST['upgrade']) && $_POST['upgrade']):
+	if(isset($_POST['upgrade']) && $_POST['upgrade']) {
 		$cmd = sprintf('%1$s/wireguard-init -u > %2$s',$rootfolder,$logevent);
 		$return_val = 0;
 		$output = [];
 		exec($cmd,$output,$return_val);
-		if($return_val == 0):
+		if($return_val == 0) {
 			ob_start();
 			include("{$logevent}");
 			$ausgabe = ob_get_contents();
 			ob_end_clean(); 
 			$savemsg .= str_replace("\n", "<br />", $ausgabe)."<br />";
-		else:
+		} else {
 			$input_errors[] = gtext('An error has occurred during upgrade process.');
 			$cmd = sprintf('echo %s: %s An error has occurred during upgrade process. >> %s',$date,$application,$logfile);
 			exec($cmd);
-		endif;
-	endif;
+		}
+	}
 
 	// Remove only extension related files during cleanup.
 	if (isset($_POST['uninstall']) && $_POST['uninstall']) {
@@ -242,20 +241,18 @@ if ($_POST) {
 			$value = $postinit_cmd;
 			$sphere_array = &$config['rc']['param'];
 			$updateconfigfile = false;
-		if (false !== ($index = array_search_ex($value, $sphere_array, 'value'))) {
-			unset($sphere_array[$index]);
-			$updateconfigfile = true;
-		}
-		if ($updateconfigfile) {
-			write_config();
-			$updateconfigfile = false;
-		}
-	}
-	header("Location:index.php");
+    		if (false !== ($index = array_search_ex($value, $sphere_array, 'value'))) {
+    			unset($sphere_array[$index]);
+    			$updateconfigfile = true;
+    		}
+    		if ($updateconfigfile) {
+    			write_config();
+    			$updateconfigfile = false;
+    		}
+    	}
+    	header("Location:index.php");
+    }
 }
-
-}
-
 
 function get_all_conf() {
 	global $conffolder;
@@ -372,7 +369,6 @@ function get_datatransferred() {
 	}
 	return ($result[0]);
 } 
-
 function startedonboot($conf) {
 	exec("/usr/sbin/service -e | grep '/wireguard$'", $result);
 	return !empty($result);
@@ -391,6 +387,12 @@ function startonboot($conf, $enableboot) {
       exec("/usr/sbin/sysrc -x wireguard_interfaces", $result);
       return true;
     }
+}
+function write_to_conf($key, $value) {
+    if (empty($key))
+        return (bool)false;
+    exec("sysrc -f \"{$conffile}\" {$key}={$value} >/dev/null 2>&1");
+    return (bool)true;    
 }
 function get_keepalive($conf) {
 	global $conffolder;
