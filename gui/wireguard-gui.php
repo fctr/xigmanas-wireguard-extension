@@ -176,16 +176,16 @@ if ($_POST) {
           fclose($myfile);
           exec("/usr/local/bin/wg syncconf {$interfacename} {$conffolder}/{$interfacename}.conf", $result);
           if ($_POST['wg_boot'] === "yes") {
+            write_to_conf("ACTIVATE_ON_BOOT", "YES");
             if (!startedonboot($interfacename)) {
                 exec("sysrc wireguard_interfaces=\"wg0\"", $result);
                 exec("service wireguard enable", $result);
-                write_to_conf("ACTIVATE_ON_BOOT", "YES");
             }
           } else {
+            write_to_conf("ACTIVATE_ON_BOOT", "NO");
             if (startedonboot($interfacename)) {
                 exec("service wireguard delete", $result);
                 exec("sysrc -x wireguard_interfaces", $result);
-                write_to_conf("ACTIVATE_ON_BOOT", "NO");
             }
           }
         }
