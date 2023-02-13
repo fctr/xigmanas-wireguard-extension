@@ -228,7 +228,7 @@ sys_installpkgs()
     # This is only needed for embedded versions. Full versions use the service controller
     local ACTIVATE_ON_BOOT=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -i -n ACTIVATE_ON_BOOT)
     if [ "${ACTIVATE_ON_BOOT}" = "YES" ]; then
-      wg-quick up wg0.conf
+      wg-quick up wg0
     fi 
 }
 
