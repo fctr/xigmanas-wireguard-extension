@@ -88,8 +88,9 @@ function validateCIDRList($cidr) {
     return (bool)false;
 }
 function validateIP($ipaddr) {
-    if (!str_contains($endpoint, ".")) return (bool)false;
-    $tokens = explode(".", $endpoint);
+    if (empty($ipaddr)) return (bool)false;
+    if (!str_contains($ipaddr, ".")) return (bool)false;
+    $tokens = explode(".", $ipaddr);
     if (sizeof($tokens) != 4) return (bool)false;
     if (!validateu8($tokens[0], 1)) return (bool)false;
     if (!validateu8($tokens[1])) return (bool)false;
