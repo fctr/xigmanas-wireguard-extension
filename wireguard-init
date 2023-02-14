@@ -95,13 +95,6 @@ wireguard_native_download()
         # Install latest wireguard packages.
         update_freebsdconf
         pkg install -y ${MAIN_PKG} || error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
-        #if ! pkg info | grep -q ${MAIN_PKG}; then
-                # Check if wireguard already exist.
-        #        if [ ! -f "${APPPATH}/${APPBIN}" ]; then
-        #                update_freebsdconf
-        #                pkg install -y ${PKG_BUNDLE} || error_notify "Error: A problem has occurred while fetching ${PKG_BUNDLE}."
-        #        fi
-        #fi
 }
 
 wireguard_initial_download()
@@ -218,8 +211,10 @@ platform_check()
 
 sys_installpkgs()
 {
-    local MAIN_FILE=$(pkg search -q ${MAIN_PKG} | awk "NR==1")
-    pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg" || error_notify "Error: A problem has occurred while installing ${MAIN_PKG}."
+    if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
+      local MAIN_FILE=$(pkg search -q ${MAIN_PKG} | awk "NR==1")
+      pkg add "${CWDIR}/download/All/${MAIN_FILE}.pkg" || error_notify "Error: A problem has occurred while installing ${MAIN_PKG}."
+    fi
     
     if [ ! -f "${CWDIR}/conf/wg0.conf" ]; then
       touch "${CWDIR}/conf/wg0.conf" || error_notify "Error: A problem has occurred while creating the wg0.conf file."
