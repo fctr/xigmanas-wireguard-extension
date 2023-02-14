@@ -87,23 +87,50 @@ function validateCIDRList($cidr) {
     if (preg_match("/^ *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *(?:, *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *)*$/", $cidr)) return (bool)true;
     return (bool)false;
 }
+function validateIP($ipaddr) {
+    if (!str_contains($endpoint, ".")) return (bool)false;
+    $tokens = explode(".", $endpoint);
+    if (sizeof($tokens) != 4) return (bool)false;
+    if (!validateu8($tokens[0], 1)) return (bool)false;
+    if (!validateu8($tokens[1])) return (bool)false;
+    if (!validateu8($tokens[2])) return (bool)false;
+    if (!validateu8($tokens[3])) return (bool)false;
+    return (bool)true;
+}
+function validateTLD($tld) {
+    foreach (mb_str_split($tld) as $char) {
+        if (!ctype_alnum($char) && ($char != '-') && ($char != '.')) return (bool)false;
+    }
+    return (bool)true;
+}
 function validateEndpoint($endpoint) {
-    if (preg_match("/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$|(([a-z]+\.){1,}[a-z]+)\:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$/", $endpoint)) return (bool)true;
+    if (!str_contains($endpoint, ":")) return (bool)false;
+    $tokens = explode(":", $endpoint);
+    if (sizeof($tokens) != 2) return (bool)false;
+    if (empty($tokens[0])) return (bool)false;
+    if (!validateu16($tokens[1],1)) return (bool)false;
+    if (validateIP($tokens[0])) return (bool)true;
+    if (validateTLD($tokens[0])) return (bool)true;
     return (bool)false;
 }
-function validateu16($u16) {
+function validateu8($u8, $minu8 = 0, $maxu8 = 255) {
+    if (empty($u8)) return (bool)true;
+    if (!is_numeric($u8)) return (bool)false;
+    if ($minu8 > $maxu8) return (bool)false;
+	if (intval($u8) < $minu8) return (bool)false;
+	if (intval($u8) > $maxu8) return (bool)false;
+	return (bool)true;
+}
+function validateu16($u16, $minu16 = 0, $maxu16 = 65535) {
     if (empty($u16)) return (bool)true;
     if (!is_numeric($u16)) return (bool)false;
-	if (intval($u16) < 0) return (bool)false;
-	if (intval($u16) > 65535) return (bool)false;
+    if ($minu16 > $maxu16) return (bool)false;
+	if (intval($u16) < $minu16) return (bool)false;
+	if (intval($u16) > $maxu16) return (bool)false;
 	return (bool)true;
 }
 function validateMTU($mtu) {
-    if (empty($mtu)) return (bool)true;
-    if (!is_numeric($mtu)) return (bool)false;
-	if (intval($mtu) < 8) return (bool)false;
-	if (intval($mtu) > 65535) return (bool)false;
-	return (bool)true;
+    return validateu16($mtu, 8);
 }
 
 if ($_POST) {
