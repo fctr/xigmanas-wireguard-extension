@@ -210,6 +210,7 @@ platform_check()
                 create_addon_env
                 ext_initial_download
                 wireguard_native_download
+                sys_installpkgs
         fi
 }
 
@@ -225,12 +226,13 @@ sys_installpkgs()
     if [ ! -f "${USRLOCAL}/etc/wireguard/wg0.conf" ]; then
       ln -s "${CWDIR}/conf/wg0.conf" "${USRLOCAL}/etc/wireguard/wg0.conf"
     fi
-    # This is only needed for embedded versions. Full versions use the service controller
-    local ACTIVATE_ON_BOOT=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -i -n ACTIVATE_ON_BOOT)
-    if [ "${ACTIVATE_ON_BOOT}" = "YES" ]; then
-      sysrc wireguard_interfaces="wg0"
-      service wireguard enable
-      service wireguard start
+    if [ "${PRDPLATFORM}" = "x64-embedded" ]; then
+      local ACTIVATE_ON_BOOT=$(sysrc -f "${CWDIR}${WIREGUARDCONF}" -i -n ACTIVATE_ON_BOOT)
+      if [ "${ACTIVATE_ON_BOOT}" = "YES" ]; then
+        sysrc wireguard_interfaces="wg0"
+        service wireguard enable
+        service wireguard start
+      fi
     fi 
 }
 
