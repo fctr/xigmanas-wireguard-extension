@@ -75,18 +75,44 @@ function validateKey($key) {
     if (preg_match("/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4}){11}$/", $key)) return (bool)true;
     return (bool)false;
 }
-function validateIPList($iplist) {
-    if (preg_match("/^ *((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}+ *(?:, *((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}+ *)*$/", $iplist)) return (bool)true;
-    return (bool)false;
+
+function validateIPList(&$iplist) {
+    if (empty($iplist)) return (bool)false;
+    $tokens = explode(",", $iplist);
+    $iplist = "";
+    foreach ($tokens as &$token) {
+        $token = trim($token);
+        if (!validateIP($token)) return (bool)false;
+        $iplist .= $token . ","; 
+    }
+    $iplist = trim($iplist, ",");
+    return (bool)true;
 }
-function validateCIDR($cidr) {
-    if (preg_match("/^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)$/", $cidr)) return (bool)true;
-    return (bool)false;
+
+function validateCIDR(&$cidr) {
+    if (empty($cidr)) return (bool)false;
+    $tokens = explode("/", $cidr);
+    $tokens[0] = trim($tokens[0]);
+    $tokens[1] = trim($tokens[1]);
+    if (!validateIP($tokens[0])) return (bool)false;
+    if (!validateu8($tokens[1], 0, 32)) return (bool)false;
+    $cidr = $tokens[0] . "/" . $tokens[1];
+    return (bool)true;
 }
-function validateCIDRList($cidr) {
-    if (preg_match("/^ *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *(?:, *(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(\/(3[0-2]|2[0-9]|1\d|\d))?)+ *)*$/", $cidr)) return (bool)true;
-    return (bool)false;
+
+function validateCIDRList(&$cidrlist) {
+    if (empty($cidrlist)) return (bool)false;
+    $tokens = explode(",", $cidrlist);
+    $cidrlist = "";
+    foreach ($tokens as &$token) {
+        $token = trim($token);
+        if (!validateCIDR($token)) return (bool)false;
+        $cidrlist .= $token . ","; 
+    }
+    $cidrlist = trim($cidrlist, ",");
+    return (bool)true;
 }
+
 function validateIP($ipaddr) {
     if (empty($ipaddr)) return (bool)false;
     if (!str_contains($ipaddr, ".")) return (bool)false;
@@ -98,12 +124,14 @@ function validateIP($ipaddr) {
     if (!validateu8($tokens[3])) return (bool)false;
     return (bool)true;
 }
+
 function validateTLD($tld) {
     foreach (mb_str_split($tld) as $char) {
         if (!ctype_alnum($char) && ($char != '-') && ($char != '.')) return (bool)false;
     }
     return (bool)true;
 }
+
 function validateEndpoint($endpoint) {
     if (!str_contains($endpoint, ":")) return (bool)false;
     $tokens = explode(":", $endpoint);
@@ -114,6 +142,7 @@ function validateEndpoint($endpoint) {
     if (validateTLD($tokens[0])) return (bool)true;
     return (bool)false;
 }
+
 function validateu8($u8, $minu8 = 0, $maxu8 = 255) {
     if (empty($u8)) return (bool)true;
     if (!is_numeric($u8)) return (bool)false;
@@ -122,6 +151,7 @@ function validateu8($u8, $minu8 = 0, $maxu8 = 255) {
 	if (intval($u8) > $maxu8) return (bool)false;
 	return (bool)true;
 }
+
 function validateu16($u16, $minu16 = 0, $maxu16 = 65535) {
     if (empty($u16)) return (bool)true;
     if (!is_numeric($u16)) return (bool)false;
@@ -130,6 +160,7 @@ function validateu16($u16, $minu16 = 0, $maxu16 = 65535) {
 	if (intval($u16) > $maxu16) return (bool)false;
 	return (bool)true;
 }
+
 function validateMTU($mtu) {
     return validateu16($mtu, 8);
 }
