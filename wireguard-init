@@ -92,9 +92,12 @@ update_freebsdconf()
 
 wireguard_native_download()
 {
-        # Install latest wireguard packages.
-        update_freebsdconf
-        pkg install -y ${MAIN_PKG} || error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
+        # Check if wireguard already exist.
+        if [ ! -f "${APPPATH}/${APPBIN}" ]; then
+          # Install latest wireguard packages.
+          update_freebsdconf
+          pkg install -y ${MAIN_PKG} || error_notify "Error: A problem has occurred while fetching ${MAIN_PKG}."
+        fi
 }
 
 wireguard_initial_download()
